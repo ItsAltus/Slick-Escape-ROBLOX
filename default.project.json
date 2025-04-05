@@ -1,0 +1,25 @@
+{
+  "name": "entity.exe",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+       "Modules": {
+        "$path": "src/ReplicatedStorage/Modules"
+       }
+    },
+    "ServerScriptService": {
+      "$path": "src/ServerScriptService"
+    },
+    "StarterPlayer": {
+      "StarterCharacterScripts": {
+        "$path": "src/StarterPlayer/StarterCharacterScripts"
+      },
+      "StarterPlayerScripts": {
+        "$path": "src/StarterPlayer/StarterPlayerScripts"
+      }
+    },
+    "StarterGui": {
+      "$path": "src/StarterGui"
+    }
+  }
+}
