@@ -6,8 +6,8 @@ local waypoint1 = workspace:WaitForChild("Waypoint1")
 local waypoint2 = workspace:WaitForChild("Waypoint2")
 
 local currentTarget = waypoint1
-local speed = 8
-local visionRadius = 10
+local speed = 11
+local visionRadius = 12
 local detectionGrace = 0.8
 local detectionTimer = 0
 
@@ -71,6 +71,19 @@ local function handleDetection(player, hrp)
     end
 end
 
+local function checkPlayerCaught(hrp)
+    if hrp and chasingPlayer then
+        local distance = (enemy.Position - hrp.Position).Magnitude
+        if distance <= 0.7 then
+            local humanoid = hrp.Parent:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid.Health = 0
+                print("Player has been caught and killed!")
+            end
+        end
+    end
+end
+
 while true do
     local player = PlayerUtils.getPlayer()
     local hrp = PlayerUtils.getHRP()
@@ -79,6 +92,7 @@ while true do
         moveEnemy(hrp)
         checkSafeZone(player)
         handleDetection(player, hrp)
+        checkPlayerCaught(hrp)
     end
 
     task.wait(0.03)
