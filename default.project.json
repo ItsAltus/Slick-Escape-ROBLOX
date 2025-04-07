@@ -17,9 +17,6 @@
       "StarterPlayerScripts": {
         "$path": "src/StarterPlayer/StarterPlayerScripts"
       }
-    },
-    "StarterGui": {
-      "$path": "src/StarterGui"
     }
   }
 }
