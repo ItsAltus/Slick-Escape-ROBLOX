@@ -17,6 +17,14 @@ local chasingPlayer = false
 
 local function moveEnemy(hrp)
     if chasingPlayer then
+        local humanoid = hrp.Parent:FindFirstChild("Humanoid")
+        if humanoid and humanoid.Health <= 0 then
+            chasingPlayer = false
+            playerDetected = false
+            detectionTimer = 0
+            return
+        end
+
         local chaseDirection = (hrp.Position - enemy.Position).Unit
         enemy.CFrame = enemy.CFrame + (chaseDirection * speed * 0.03)
     else
@@ -45,6 +53,11 @@ local function checkSafeZone(player)
 end
 
 local function handleDetection(player, hrp)
+    local humanoid = hrp.Parent:FindFirstChild("Humanoid")
+    if not humanoid or humanoid.Health <= 0 then
+        return
+    end
+
     local distance = (enemy.Position - hrp.Position).Magnitude
 
     if distance <= visionRadius then
@@ -76,8 +89,11 @@ local function checkPlayerCaught(hrp)
         local distance = (enemy.Position - hrp.Position).Magnitude
         if distance <= 0.7 then
             local humanoid = hrp.Parent:FindFirstChild("Humanoid")
-            if humanoid then
+            if humanoid and humanoid.Health > 0 then
                 humanoid.Health = 0
+                chasingPlayer = false
+                playerDetected = false
+                detectionTimer = 0
                 print("Player has been caught and killed!")
             end
         end

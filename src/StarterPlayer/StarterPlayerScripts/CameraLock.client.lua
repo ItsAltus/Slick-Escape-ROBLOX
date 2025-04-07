@@ -2,9 +2,9 @@ local PlayerUtils = require(game:GetService("ReplicatedStorage"):WaitForChild("M
 local RunService = game:GetService("RunService")
 
 local player = PlayerUtils.getPlayer()
-local camera = workspace.CurrentCamera
 
 local function setupCamera(character)
+    local camera = workspace.CurrentCamera
     local hrp = character:WaitForChild("HumanoidRootPart")
     camera.CameraType = Enum.CameraType.Scriptable
 
@@ -24,5 +24,20 @@ if character then
 end
 
 player.CharacterAdded:Connect(function(newCharacter)
+    local oldCamera = workspace.CurrentCamera
+
+    local newCamera = Instance.new("Camera")
+    newCamera.CFrame = CFrame.new(0, 10, 0)
+    workspace.CurrentCamera = newCamera
+    newCamera.CameraType = Enum.CameraType.Custom
+
+    task.wait(0.1)
+
+    local humanoid = newCharacter:WaitForChild("Humanoid")
+    newCamera.CameraSubject = humanoid
+    newCamera.CameraType = Enum.CameraType.Scriptable
+
     setupCamera(newCharacter)
+
+    oldCamera:Destroy()
 end)
