@@ -7,7 +7,6 @@ local cameraUpdateConnection = nil
 
 local function setupCamera(character)
     local camera = workspace.CurrentCamera
-    local hrp = character:WaitForChild("HumanoidRootPart", 5)
     camera.CameraType = Enum.CameraType.Scriptable
 
     if cameraUpdateConnection then
@@ -15,6 +14,7 @@ local function setupCamera(character)
     end
 
     cameraUpdateConnection = RunService.RenderStepped:Connect(function()
+        local hrp = character:WaitForChild("HumanoidRootPart", 5)
         if hrp and hrp.Parent then
             local cameraHeight = 35
             camera.CFrame = CFrame.new(
@@ -40,7 +40,6 @@ player.CharacterAdded:Connect(function(newCharacter)
     task.wait(0.05)
 
     local humanoid = newCharacter:WaitForChild("Humanoid")
-    local hrp = newCharacter:WaitForChild("HumanoidRootPart", 5)
 
     newCamera.CameraSubject = humanoid
     newCamera.CameraType = Enum.CameraType.Scriptable
