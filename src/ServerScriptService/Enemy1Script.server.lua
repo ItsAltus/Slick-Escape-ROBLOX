@@ -16,7 +16,7 @@ local waypoint1 = workspace:WaitForChild("Waypoint1")
 local waypoint2 = workspace:WaitForChild("Waypoint2")
 
 local currentTarget = waypoint1
-local speed = 14
+local speed = 16
 local dt = 0.03
 
 local playerInSight = false
@@ -31,14 +31,18 @@ end)
 
 local detectionProgress = 0
 local detectionRateMoving = 500
-local detectionRateStationary = 150
+local detectionRateStationary = 250
 
 local suspiciousTimer = 0
 local suspiciousTimerMax = 2
 local noticeTimer = 0
-local noticeTimerMax = 0.5
+local noticeTimerMax = 0.1
 local suspicionCooldown = 0
 local suspicionCooldownMax = 2
+
+local axisRecheckTimer = 0
+local axisRecheckCooldown = 0.2
+local stuckTimer = 0
 
 local state = "Patrolling"
 local playerDetected = false
@@ -63,12 +67,22 @@ local function moveEnemy(hrp)
             return
         end
 
+        if stuckTimer > 0 then
+            stuckTimer = stuckTimer - dt
+            return
+        end
+
         local delta = hrp.Position - enemy.Position
 
-        if math.abs(delta.X) > math.abs(delta.Z) then
-            chaseAxis = "X"
-        else
-            chaseAxis = "Z"
+        axisRecheckTimer = axisRecheckTimer - dt
+
+        if not chaseAxis or axisRecheckTimer <= 0 then
+            if math.abs(delta.X) > math.abs(delta.Z) then
+                chaseAxis = "X"
+            else
+                chaseAxis = "Z"
+            end
+            axisRecheckTimer = axisRecheckCooldown
         end
 
         local snappedDirection
@@ -108,8 +122,52 @@ local function moveEnemy(hrp)
 
             if not moveRay then
                 enemy.Position = enemy.Position + (snappedDirection * speed * dt)
+            else
+                if chaseAxis == "X" then
+                    chaseAxis = "Z"
+                else
+                    chaseAxis = "X"
+                end
+
+                if chaseAxis == "X" then
+                    if delta.X > 0 then
+                        snappedDirection = Vector3.new(1, 0, 0)
+                        rotationAngle = math.rad(-90)
+                    else
+                        snappedDirection = Vector3.new(-1, 0, 0)
+                        rotationAngle = math.rad(90)
+                    end
+                else
+                    if delta.Z > 0 then
+                        snappedDirection = Vector3.new(0, 0, 1)
+                        rotationAngle = math.rad(180)
+                    else
+                        snappedDirection = Vector3.new(0, 0, -1)
+                        rotationAngle = 0
+                    end
+                end
+
+                moveDirection = snappedDirection.Unit
+                moveRay = workspace:Raycast(enemy.Position, moveDirection * (moveDistance + 1), RaycastParams)
+
+                if not moveRay then
+                    enemy.Position = enemy.Position + (snappedDirection * speed * dt)
+                else
+                    stuckTimer = 1
+                    print("[AI] Enemy stuck! Freezing for 1 second.")
+                    return
+                end
             end
+
             enemy.CFrame = CFrame.new(enemy.Position) * CFrame.Angles(0, rotationAngle, 0)
+
+            delta = hrp.Position - enemy.Position
+
+            if chaseAxis == "X" and math.abs(delta.X) < 0.5 then
+                chaseAxis = nil
+            elseif chaseAxis == "Z" and math.abs(delta.Z) < 0.5 then
+                chaseAxis = nil
+            end
         end
 
     else
@@ -238,7 +296,7 @@ local function handleDetection(player, hrp)
         if state == "Suspicious" then
             detectionProgress = detectionProgress - 100 * dt
         else
-            detectionProgress = detectionProgress - 40 * dt
+            detectionProgress = detectionProgress - 10 * dt
         end
 
         if detectionProgress <= 0 and (state == "Suspicious" or state == "Chasing") then
