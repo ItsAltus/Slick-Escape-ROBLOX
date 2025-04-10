@@ -316,7 +316,7 @@ end
 local function checkPlayerCaught(hrp)
     if hrp and chasingPlayer then
         local distance = (enemy.Position - hrp.Position).Magnitude
-        if distance <= 3.5 then
+        if distance <= 4 then
             local humanoid = hrp.Parent:FindFirstChild("Humanoid")
             if humanoid and humanoid.Health > 0 then
                 humanoid.Health = 0

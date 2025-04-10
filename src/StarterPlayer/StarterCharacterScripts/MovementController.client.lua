@@ -80,23 +80,27 @@ RunService.RenderStepped:Connect(function()
     isOnIce = checkIfOnIce()
 
     if isOnIce then
+        local maxSlideSpeed = isDashing and 3 or 1.5
+
         if moveDirection.Magnitude > 0 then
-            if isDashing then
-                slideMomentum = slideMomentum + moveDirection * 0.4
-            else
-                slideMomentum = slideMomentum + (moveDirection - slideMomentum) * 0.5
-            end
+            local accel = isDashing and 0.2 or 0.04
+            slideMomentum = slideMomentum + moveDirection.Unit * accel
         else
             slideMomentum = slideMomentum * 0.975
             if slideMomentum.Magnitude < 0.1 then
                 slideMomentum = Vector3.new(0, 0, 0)
             end
         end
+
+        if slideMomentum.Magnitude > maxSlideSpeed then
+            slideMomentum = slideMomentum.Unit * maxSlideSpeed
+        end
+
         humanoid:Move(slideMomentum, false)
     else
-        slideMomentum = Vector3.new(0, 0, 0)
-        humanoid:Move(moveDirection, false)
+        slideMomentum = Vector3.zero
+        if moveDirection.Magnitude > 0 then
+            humanoid:Move(moveDirection, false)
+        end
     end
 end)
-
-humanoid.WalkSpeed = moveSpeed
