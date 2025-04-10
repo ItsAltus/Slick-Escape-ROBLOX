@@ -20,6 +20,7 @@ local speed = 16
 local dt = 0.03
 
 local playerInSight = false
+local playerWasMoving = false
 
 PlayerSeenEvent.OnServerEvent:Connect(function(player)
     playerInSight = true
@@ -30,13 +31,13 @@ PlayerLostEvent.OnServerEvent:Connect(function(player)
 end)
 
 local detectionProgress = 0
-local detectionRateMoving = 500
+local detectionRateMoving = 800
 local detectionRateStationary = 250
 
 local suspiciousTimer = 0
 local suspiciousTimerMax = 2
 local noticeTimer = 0
-local noticeTimerMax = 0.1
+local noticeTimerMax = 0.2
 local suspicionCooldown = 0
 local suspicionCooldownMax = 2
 
@@ -175,9 +176,55 @@ local function moveEnemy(hrp)
             return
         end
 
-        local patrolDirection = (currentTarget.Position - enemy.Position).Unit
-        local moveVector = Vector3.new(patrolDirection.X, 0, patrolDirection.Z)
-        enemy.Position = enemy.Position + (moveVector * speed * dt)
+        local delta = currentTarget.Position - enemy.Position
+
+        RaycastParams.FilterDescendantsInstances = {enemy, visionZone}
+
+        local moveVector = Vector3.zero
+        local moveDistance = speed * dt
+
+        if math.abs(delta.X) > 0.5 then
+            local directionX = delta.X > 0 and Vector3.new(1, 0, 0) or Vector3.new(-1, 0, 0)
+            local moveRay = workspace:Raycast(enemy.Position, directionX * (moveDistance + 1), RaycastParams)
+
+            if not moveRay then
+                moveVector = directionX
+            end
+        end
+
+        if moveVector == Vector3.zero and math.abs(delta.Z) > 0.5 then
+            local directionZ = delta.Z > 0 and Vector3.new(0, 0, 1) or Vector3.new(0, 0, -1)
+            local moveRay = workspace:Raycast(enemy.Position, directionZ * (moveDistance + 1), RaycastParams)
+
+            if not moveRay then
+                moveVector = directionZ
+            end
+        end
+
+        if moveVector ~= Vector3.zero then
+            enemy.Position = enemy.Position + (moveVector * speed * dt)
+            local rotationAngle = 0
+
+            if moveVector.X ~= 0 then
+                rotationAngle = moveVector.X > 0 and math.rad(-90) or math.rad(90)
+            elseif moveVector.Z ~= 0 then
+                rotationAngle = moveVector.Z > 0 and math.rad(180) or 0
+            end
+
+            enemy.CFrame = CFrame.new(enemy.Position) * CFrame.Angles(0, rotationAngle, 0)
+
+        else
+            local randomAxis = math.random(1, 2)
+            local randomDirection
+
+            if randomAxis == 1 then
+                randomDirection = math.random(0, 1) == 0 and Vector3.new(1, 0, 0) or Vector3.new(-1, 0, 0)
+            else
+                randomDirection = math.random(0, 1) == 0 and Vector3.new(0, 0, 1) or Vector3.new(0, 0, -1)
+            end
+            enemy.Position = enemy.Position + (randomDirection * speed * dt * 0.5)
+            print("[AI] Enemy stuck while patrolling, wiggling free!")
+        end
     end
 
     local forward = enemy.CFrame.LookVector
@@ -236,6 +283,15 @@ local function handleDetection(player, hrp)
     end
 
     local playerIsMoving = humanoid.MoveDirection.Magnitude > 0
+
+    if playerInSight and playerIsMoving and not playerWasMoving then
+        if state == "Suspicious" then
+            detectionProgress += 60
+            print("[DETECTION] Player moved suddenly! Instant bump.")
+        end
+    end
+
+    playerWasMoving = playerIsMoving
 
     if not playerInSight then
         noticeTimer = 0
@@ -316,7 +372,7 @@ end
 local function checkPlayerCaught(hrp)
     if hrp and chasingPlayer then
         local distance = (enemy.Position - hrp.Position).Magnitude
-        if distance <= 4 then
+        if distance <= 3.5 then
             local humanoid = hrp.Parent:FindFirstChild("Humanoid")
             if humanoid and humanoid.Health > 0 then
                 humanoid.Health = 0
