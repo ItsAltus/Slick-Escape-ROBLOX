@@ -3,6 +3,8 @@ EnemyModule.__index = EnemyModule
 
 local PlayerUtils = require(game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("PlayerUtils"))
 local SafeZoneTracker = require(game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("SafeZoneTracker"))
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ShakeEvent = ReplicatedStorage:WaitForChild("ShakeCamera")
 
 local RaycastParamsTemplate = RaycastParams.new()
 RaycastParamsTemplate.FilterType = Enum.RaycastFilterType.Blacklist
@@ -42,6 +44,7 @@ function EnemyModule.new(enemyModel, waypoint1, waypoint2, settings, player)
 
     self.playerInSight = false
     self.playerWasMoving = false
+    self.hasUsedGrace = false
     self.detectionProgress = 0
     self.detectionRateMoving = 800
     self.detectionRateStationary = 250
@@ -49,16 +52,27 @@ function EnemyModule.new(enemyModel, waypoint1, waypoint2, settings, player)
     self.suspiciousTimerMax = 2
     self.noticeTimer = 0
     self.noticeTimerMax = 0.2
+    self.movementGraceTimer = 0
+    self.movementGraceDuration = 1
     self.suspicionCooldown = 0
     self.suspicionCooldownMax = 2
     self.axisRecheckTimer = 0
     self.axisRecheckCooldown = 0.2
     self.stuckTimer = 0
+    self.flashTimer = 0
+    self.flashDuration = 0.1
+    self.flashCount = 0
+    self.maxFlashes = 4
+    self.isFlashing = false
 
     self.state = "Patrolling"
+    self.lastState = "Patrolling"
     self.playerDetected = false
     self.chasingPlayer = false
     self.chaseAxis = nil
+
+    self.originalVisionTransparency = self.visionZone.Transparency
+    self.originalVisionColor = self.visionZone.Color
 
     self.playerTouchCount = 0
     self.visionZone.Touched:Connect(function(hit)
@@ -69,6 +83,9 @@ function EnemyModule.new(enemyModel, waypoint1, waypoint2, settings, player)
             if character == player.Character then
                 self.playerTouchCount = self.playerTouchCount + 1
                 if self.playerTouchCount == 1 then
+                    self.playerInSight = true
+                    self.hasUsedGrace = false
+                    self.movementGraceTimer = self.movementGraceDuration
                     self.playerInSight = true
                     print("[SERVER] Player entered VisionZone of " .. self.enemy.Name)
                 end
@@ -277,10 +294,21 @@ function EnemyModule:handleDetection(player, hrp)
     end
 
     local playerIsMoving = humanoid.MoveDirection.Magnitude > 0
-    if self.playerInSight and playerIsMoving and not self.playerWasMoving then
-        if self.state == "Suspicious" then
-            self.detectionProgress = self.detectionProgress + 60
-            print("[DETECTION] Player moved suddenly! Instant bump.")
+    if self.playerInSight then
+        if playerIsMoving then
+            if self.movementGraceTimer > 0 then
+                self.movementGraceTimer = self.movementGraceTimer - self.dt
+            else
+                if self.state == "Suspicious" then
+                    self.detectionProgress = self.detectionProgress + 60
+                    print("[DETECTION] Player moved after grace expired! Instant bump.")
+                end
+            end
+        else
+            if not self.hasUsedGrace then
+                self.movementGraceTimer = self.movementGraceDuration
+                self.hasUsedGrace = true
+            end
         end
     end
     self.playerWasMoving = playerIsMoving
@@ -295,6 +323,8 @@ function EnemyModule:handleDetection(player, hrp)
             self.state = "Chasing"
             self.chasingPlayer = true
             self.playerDetected = true
+            self.hasUsedGrace = false
+            self.movementGraceTimer = 0
             print("[STATE] Full Detection! Chasing player!")
         end
     end
@@ -310,12 +340,16 @@ function EnemyModule:handleDetection(player, hrp)
             end
         end
         if self.state == "Suspicious" then
-            if playerIsMoving then
-                self.detectionProgress = self.detectionProgress + (self.detectionRateMoving * 2) * self.dt
-                self.suspiciousTimer = self.suspiciousTimerMax
+            if self.movementGraceTimer <= 0 then
+                if playerIsMoving then
+                    self.detectionProgress = self.detectionProgress + (self.detectionRateMoving * 2) * self.dt
+                    self.suspiciousTimer = self.suspiciousTimerMax
+                else
+                    self.detectionProgress = self.detectionProgress - (self.detectionRateStationary) * self.dt
+                    self.suspiciousTimer = self.suspiciousTimer - self.dt
+                end
             else
-                self.detectionProgress = self.detectionProgress - (self.detectionRateStationary) * self.dt
-                self.suspiciousTimer = self.suspiciousTimer - self.dt
+                self.movementGraceTimer = self.movementGraceTimer - self.dt
             end
             self.detectionProgress = math.clamp(self.detectionProgress, 0, 100)
             if self.suspiciousTimer <= 0 then
@@ -348,11 +382,15 @@ function EnemyModule:handleDetection(player, hrp)
     end
     self.detectionProgress = math.clamp(self.detectionProgress, 0, 100)
     print("[VISION] State:", self.state, "| Detection Progress:", math.floor(self.detectionProgress))
+    self:updateVisualState()
 end
 
 function EnemyModule:checkPlayerCaught(hrp)
     if hrp and self.chasingPlayer then
         local distance = (self.enemy.Position - hrp.Position).Magnitude
+        if distance < 10 then
+            ShakeEvent:FireClient(self.player, distance)
+        end
         if distance <= 3.5 then
             local humanoid = hrp.Parent:FindFirstChild("Humanoid")
             if humanoid and humanoid.Health > 0 then
@@ -375,6 +413,49 @@ function EnemyModule:updateVisionZone()
     local halfDepth = self.visionZone.Size.Z / 2
     self.visionZone.Position = self.enemy.Position + Vector3.new(forward.X, 0, forward.Z) * halfDepth
     self.visionZone.Orientation = self.enemy.Orientation
+end
+
+function EnemyModule:updateVisualState()
+    if self.state ~= self.lastState then
+        self.isFlashing = true
+        self.flashCount = 0
+        self.flashTimer = self.flashDuration
+        self.lastState = self.state
+        self.visionZone.Transparency = self.originalVisionTransparency
+    end
+
+    if self.isFlashing then
+        self.flashTimer = self.flashTimer - self.dt
+        if self.flashTimer <= 0 then
+            self.flashTimer = self.flashDuration
+            self.flashCount = self.flashCount + 1
+
+            if self.flashCount % 2 == 1 then
+                if self.state == "Suspicious" then
+                    self.visionZone.Color = Color3.fromRGB(255, 255, 0)
+                    self.visionZone.Transparency = 0.5
+                elseif self.state == "Chasing" then
+                    self.visionZone.Color = Color3.fromRGB(255, 0, 0)
+                    self.visionZone.Transparency = 0.5
+                end
+            else
+                self.visionZone.Color = self.originalVisionColor
+                self.visionZone.Transparency = self.originalVisionTransparency
+            end
+
+            if self.flashCount >= self.maxFlashes then
+                self.isFlashing = false
+            end
+        end
+    else
+        if self.state == "Chasing" then
+            self.visionZone.Color = self.originalVisionColor
+            self.visionZone.Transparency = 1
+        else
+            self.visionZone.Color = self.originalVisionColor
+            self.visionZone.Transparency = self.originalVisionTransparency
+        end
+    end
 end
 
 function EnemyModule:Start()
