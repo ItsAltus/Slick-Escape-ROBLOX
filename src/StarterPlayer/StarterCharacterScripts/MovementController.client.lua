@@ -1,9 +1,7 @@
-local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local CollectionService = game:GetService("CollectionService")
 local RunService = game:GetService("RunService")
 
-local player = Players.LocalPlayer
 local character = script.Parent
 local humanoid = character:WaitForChild("Humanoid")
 
@@ -35,6 +33,13 @@ UserInputService.InputBegan:Connect(function(input, processed)
         local now = tick()
         if now - lastDashTime >= dashCooldown and (not isDashing) then
             isDashing = true
+
+            local dashAnimation = Instance.new("Animation")
+            dashAnimation.AnimationId = "rbxassetid://94156304050794"
+            local dashAnimTrack = humanoid:LoadAnimation(dashAnimation)
+            dashAnimTrack.Priority = Enum.AnimationPriority.Action
+            dashAnimTrack:Play()
+
             humanoid.WalkSpeed = dashSpeed
             lastDashTime = now
             task.delay(0.3, function()
