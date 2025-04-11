@@ -71,6 +71,20 @@ function EnemyModule.new(enemyModel, waypoint1, waypoint2, settings, player)
     self.chasingPlayer = false
     self.chaseAxis = nil
 
+
+    self.exclamationVisible = false
+    self.exclamationFlashing = false
+    self.exclamation = self.enemy:FindFirstChild("ExclamationMark")
+    if self.exclamation and self.exclamation:IsA("Model") and self.exclamation.PrimaryPart then
+        for _, part in ipairs(self.exclamation:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.Transparency = 1
+            end
+        end
+        self.exclamationOffsetVector = self.exclamation.PrimaryPart.Position - self.enemy.Position
+        self.originalExclamationRotation = self.exclamation.PrimaryPart.Orientation
+    end
+
     self.originalVisionTransparency = self.visionZone.Transparency
     self.originalVisionColor = self.visionZone.Color
 
@@ -128,6 +142,42 @@ function EnemyModule:updateFacingDirection()
     local targetPos = Vector3.new(self.currentTarget.Position.X, 1, self.currentTarget.Position.Z)
     local lookAtCFrame = CFrame.lookAt(enemyPos, targetPos, Vector3.new(0, 1, 0))
     self.enemy.CFrame = lookAtCFrame
+end
+
+function EnemyModule:showExclamation()
+    if self.exclamation then
+        for _, part in ipairs(self.exclamation:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.Transparency = 0
+            end
+        end
+        self.exclamationVisible = true
+    end
+end
+
+function EnemyModule:hideExclamation()
+    if self.exclamation then
+        for _, part in ipairs(self.exclamation:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.Transparency = 1
+            end
+        end
+        self.exclamationVisible = false
+    end
+end
+
+function EnemyModule:blinkExclamation()
+    if not self.exclamation then return end
+    if self.exclamationFlashing then return end
+    self.exclamationFlashing = true
+    for i = 1, 2 do
+        self:hideExclamation()
+        task.wait(self.flashDuration)
+        self:showExclamation()
+        task.wait(self.flashDuration)
+    end
+    self.exclamationFlashing = false
+    self.exclamationVisible = true
 end
 
 function EnemyModule:moveEnemy(hrp)
@@ -325,6 +375,7 @@ function EnemyModule:handleDetection(player, hrp)
             self.playerDetected = true
             self.hasUsedGrace = false
             self.movementGraceTimer = 0
+            self:hideExclamation()
             print("[STATE] Full Detection! Chasing player!")
         end
     end
@@ -357,6 +408,7 @@ function EnemyModule:handleDetection(player, hrp)
                 self.detectionProgress = 0
                 self.chaseAxis = nil
                 self.suspicionCooldown = self.suspicionCooldownMax
+                self:hideExclamation()
                 print("[STATE] Player froze long enough. Returning to Patrol.")
             end
         elseif self.state == "Chasing" then
@@ -377,6 +429,7 @@ function EnemyModule:handleDetection(player, hrp)
             self.chasingPlayer = false
             self.playerDetected = false
             self.chaseAxis = nil
+            self:hideExclamation()
             print("[STATE] Back to Patrolling...")
         end
     end
@@ -454,12 +507,38 @@ function EnemyModule:updateVisualState()
         end
     else
         if self.state == "Chasing" then
+            self:hideExclamation()
             self.visionZone.Color = self.originalVisionColor
             self.visionZone.Transparency = 1
         else
             self.visionZone.Color = self.originalVisionColor
             self.visionZone.Transparency = self.originalVisionTransparency
         end
+    end
+
+    if self.state == "Suspicious" then
+        if not self.exclamationVisible and not self.exclamationFlashing then
+            task.spawn(function()
+                self:blinkExclamation()
+            end)
+        end
+    else
+        if self.exclamationVisible then
+            self:hideExclamation()
+        end
+    end
+end
+
+function EnemyModule:updateExclamation()
+    local exclamation = self.enemy:FindFirstChild("ExclamationMark")
+    if exclamation and exclamation:IsA("Model") and exclamation.PrimaryPart and self.exclamationOffsetVector and self.originalExclamationRotation then
+        local newPos = self.enemy.Position + self.exclamationOffsetVector
+        local desiredRotation = CFrame.fromOrientation(
+            math.rad(self.originalExclamationRotation.X),
+            math.rad(self.originalExclamationRotation.Y),
+            math.rad(self.originalExclamationRotation.Z)
+        )
+        exclamation:SetPrimaryPartCFrame(CFrame.new(newPos) * desiredRotation)
     end
 end
 
@@ -474,6 +553,7 @@ function EnemyModule:Start()
             self:handleDetection(player, hrp)
             self:checkPlayerCaught(hrp)
             self:updateVisionZone()
+            self:updateExclamation()
         end
         task.wait(self.dt)
     end
