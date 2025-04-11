@@ -417,6 +417,11 @@ end
 
 function EnemyModule:updateVisualState()
     if self.state ~= self.lastState then
+        if self.state == "Patrolling" and self.lastState ~= "Patrolling" then
+            self.visionZone.Color = Color3.fromRGB(0, 255, 0)
+            self.visionZone.Transparency = 0.5
+            task.wait(self.flashDuration)
+        end
         self.isFlashing = true
         self.flashCount = 0
         self.flashTimer = self.flashDuration
