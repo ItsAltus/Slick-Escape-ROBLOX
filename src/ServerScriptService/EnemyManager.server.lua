@@ -11,12 +11,16 @@ local enemies = {}
 
 local enemy1Settings = {
     Speed = 5,
-    chaseSpeed = 30
+    chaseSpeed = 30,
+    VisionSize = Vector3.new(10, 22, 20),
+    Transparency = 0.9
 }
 
 local enemy2Settings = {
     Speed = 10,
-    chaseSpeed = 15
+    chaseSpeed = 15,
+    VisionSize = Vector3.new(30, 22, 30),
+    Transparency = 0.9
 }
 
 local enemy1 = EnemyModule.new(workspace.Enemy1, workspace.Waypoint1, workspace.Waypoint2, enemy1Settings, player)

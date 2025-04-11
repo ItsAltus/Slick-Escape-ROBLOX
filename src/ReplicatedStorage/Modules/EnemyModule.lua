@@ -3,7 +3,6 @@ EnemyModule.__index = EnemyModule
 
 local PlayerUtils = require(game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("PlayerUtils"))
 local SafeZoneTracker = require(game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("SafeZoneTracker"))
-local Players = game:GetService("Players")
 
 local RaycastParamsTemplate = RaycastParams.new()
 RaycastParamsTemplate.FilterType = Enum.RaycastFilterType.Blacklist
@@ -19,9 +18,9 @@ function EnemyModule.new(enemyModel, waypoint1, waypoint2, settings, player)
     self.waypoint2 = waypoint2
     self.currentTarget = waypoint1
 
-    settings = settings or {}
-    self.speed = settings.Speed or 16
-    self.chaseSpeed = settings.chaseSpeed or 24
+    self.settings = settings or {}
+    self.speed = self.settings.Speed or 16
+    self.chaseSpeed = self.settings.chaseSpeed or 24
     self.dt = 0.03
 
     for _, part in ipairs(enemyModel:GetDescendants()) do
@@ -31,6 +30,14 @@ function EnemyModule.new(enemyModel, waypoint1, waypoint2, settings, player)
     end
     if self.visionZone:IsA("BasePart") then
         self.visionZone.CollisionGroup = "VisionZones"
+    end
+
+    if self.visionZone:IsA("BasePart") then
+        self.visionZone.Transparency = self.settings.Transparency or 0
+
+        if self.settings.VisionSize then
+            self.visionZone.Size = self.settings.VisionSize
+        end
     end
 
     self.playerInSight = false
@@ -365,7 +372,8 @@ end
 
 function EnemyModule:updateVisionZone()
     local forward = self.enemy.CFrame.LookVector
-    self.visionZone.Position = self.enemy.Position + Vector3.new(forward.X, 0, forward.Z) * 5
+    local halfDepth = self.visionZone.Size.Z / 2
+    self.visionZone.Position = self.enemy.Position + Vector3.new(forward.X, 0, forward.Z) * halfDepth
     self.visionZone.Orientation = self.enemy.Orientation
 end
 
