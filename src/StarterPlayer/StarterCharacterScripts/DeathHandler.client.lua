@@ -11,6 +11,7 @@ local deathScreen = player:WaitForChild("PlayerGui"):WaitForChild("DeathScreen")
 local deathMessage = deathScreen:WaitForChild("DeathMessage")
 local retryButton = deathScreen:WaitForChild("RetryButton")
 
+local character = PlayerUtils.getCharacter()
 local humanoid = script.Parent:WaitForChild("Humanoid")
 
 local blur = Instance.new("BlurEffect")
@@ -29,7 +30,6 @@ local function showDeathScreen()
     retryButton.Visible = true
     local retryFade = TweenService:Create(retryButton, TweenInfo.new(1), {TextTransparency = 0})
     retryFade:Play()
-    retryFade.Completed:Wait()
 
     local clicked = false
     retryButton.MouseButton1Click:Connect(function()
@@ -46,5 +46,7 @@ local function showDeathScreen()
 end
 
 humanoid.Died:Connect(function()
+    game.ReplicatedStorage:WaitForChild("RemoveBodyParts"):FireServer()
+    task.wait(1.2)
     showDeathScreen()
 end)

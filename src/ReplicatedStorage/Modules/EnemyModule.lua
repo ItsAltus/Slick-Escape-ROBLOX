@@ -101,7 +101,6 @@ function EnemyModule.new(enemyModel, waypoint1, waypoint2, settings, player)
                     self.hasUsedGrace = false
                     self.movementGraceTimer = self.movementGraceDuration
                     self.playerInSight = true
-                    print("[SERVER] Player entered VisionZone of " .. self.enemy.Name)
                 end
             end
         end
@@ -117,7 +116,6 @@ function EnemyModule.new(enemyModel, waypoint1, waypoint2, settings, player)
                 if self.playerTouchCount <= 0 then
                     self.playerTouchCount = 0
                     self.playerInSight = false
-                    print("[SERVER] Player left VisionZone of " .. self.enemy.Name)
                 end
             end
         end
@@ -182,7 +180,12 @@ end
 
 function EnemyModule:moveEnemy(hrp)
     local RaycastParams = RaycastParamsTemplate
-    RaycastParams.FilterDescendantsInstances = {self.enemy, self.visionZone}
+    local filterList = {self.enemy, self.visionZone}
+    local deadBodiesFolder = workspace:FindFirstChild("DeadBodies")
+    if deadBodiesFolder then
+        table.insert(filterList, deadBodiesFolder)
+    end
+    RaycastParams.FilterDescendantsInstances = {self.enemy, self.visionZone, filterList}
 
     if self.state == "Chasing" then
         local humanoid = hrp.Parent:FindFirstChild("Humanoid")
@@ -239,7 +242,6 @@ function EnemyModule:moveEnemy(hrp)
         if snappedDirection then
             local moveDirection = snappedDirection.Unit
             local moveDistance = self.chaseSpeed * self.dt
-            print("MoveSpeed: " .. moveDistance)
             local moveRay = workspace:Raycast(self.enemy.Position, moveDirection * (moveDistance + 1), RaycastParams)
             if not moveRay then
                 self.enemy.Position = self.enemy.Position + snappedDirection * self.chaseSpeed * self.dt
@@ -257,7 +259,6 @@ function EnemyModule:moveEnemy(hrp)
         local delta = self.currentTarget.Position - self.enemy.Position
         local moveVector = Vector3.zero
         local moveDistance = self.speed * self.dt
-        print("MoveSpeed: " .. moveDistance)
         if math.abs(delta.X) > 0.5 then
             local directionX = delta.X > 0 and Vector3.new(1, 0, 0) or Vector3.new(-1, 0, 0)
             local moveRay = workspace:Raycast(self.enemy.Position, directionX * (moveDistance + 1), RaycastParams)
@@ -380,7 +381,6 @@ function EnemyModule:handleDetection(player, hrp)
         end
     end
     local hasLineOfSight = self:hasClearLineOfSight(self.enemy.Position, hrp.Parent)
-    print("[DEBUG] Can See Player:", hasLineOfSight)
     if self.playerInSight and hasLineOfSight and self.suspicionCooldown <= 0 then
         if self.state == "Patrolling" then
             self.noticeTimer = self.noticeTimer + self.dt
@@ -434,7 +434,6 @@ function EnemyModule:handleDetection(player, hrp)
         end
     end
     self.detectionProgress = math.clamp(self.detectionProgress, 0, 100)
-    print("[VISION] State:", self.state, "| Detection Progress:", math.floor(self.detectionProgress))
     self:updateVisualState()
 end
 
@@ -547,7 +546,31 @@ function EnemyModule:Start()
     while true do
         local player = PlayerUtils.getPlayer()
         local hrp = PlayerUtils.getHRP()
-        if player and hrp then
+        local humanoid = hrp.Parent:FindFirstChild("Humanoid")
+
+        if not hrp or (hrp and hrp.Parent:FindFirstChild("Humanoid") and hrp.Parent:FindFirstChild("Humanoid").Health <= 0) then
+            self.state = "Patrolling"
+            self.lastState = "Patrolling"
+            self.detectionProgress = 0
+            self.playerInSight = false
+            self.chasingPlayer = false
+            self.playerDetected = false
+            self.chaseAxis = nil
+            self.noticeTimer = 0
+            self.suspicionCooldown = 0
+            self.axisRecheckTimer = 0
+
+            self.isFlashing = false
+            self.flashCount = 0
+            self.flashTimer = self.flashDuration
+
+            self.visionZone.Color = self.originalVisionColor
+            self.visionZone.Transparency = self.originalVisionTransparency
+
+            self:hideExclamation()
+
+            self:moveEnemy(self.enemy)
+        else
             self:moveEnemy(hrp)
             self:checkSafeZone(player)
             self:handleDetection(player, hrp)
@@ -555,6 +578,7 @@ function EnemyModule:Start()
             self:updateVisionZone()
             self:updateExclamation()
         end
+
         task.wait(self.dt)
     end
 end
