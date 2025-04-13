@@ -85,13 +85,13 @@ RunService.RenderStepped:Connect(function()
     isOnIce = checkIfOnIce()
 
     if isOnIce then
-        local maxSlideSpeed = isDashing and 3 or 1.5
+        local maxSlideSpeed = isDashing and 4 or 3
 
         if moveDirection.Magnitude > 0 then
-            local accel = isDashing and 0.2 or 0.04
+            local accel = isDashing and 0.2 or 0.1
             slideMomentum = slideMomentum + moveDirection.Unit * accel
         else
-            slideMomentum = slideMomentum * 0.975
+            slideMomentum = slideMomentum * 0.98
             if slideMomentum.Magnitude < 0.1 then
                 slideMomentum = Vector3.new(0, 0, 0)
             end

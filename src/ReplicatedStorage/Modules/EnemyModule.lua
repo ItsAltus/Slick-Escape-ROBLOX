@@ -46,8 +46,8 @@ function EnemyModule.new(enemyModel, waypoint1, waypoint2, settings, player)
     self.playerWasMoving = false
     self.hasUsedGrace = false
     self.detectionProgress = 0
-    self.detectionRateMoving = 800
-    self.detectionRateStationary = 250
+    self.detectionRateMoving = -50
+    self.detectionRateStationary = -50
     self.suspiciousTimer = 0
     self.suspiciousTimerMax = 2
     self.noticeTimer = 0
@@ -180,12 +180,12 @@ end
 
 function EnemyModule:moveEnemy(hrp)
     local RaycastParams = RaycastParamsTemplate
-    local filterList = {self.enemy, self.visionZone}
+    local filterList = {self.enemy, self.visionZone, self.waypoint1, self.waypoint2}
     local deadBodiesFolder = workspace:FindFirstChild("DeadBodies")
     if deadBodiesFolder then
         table.insert(filterList, deadBodiesFolder)
     end
-    RaycastParams.FilterDescendantsInstances = {self.enemy, self.visionZone, filterList}
+    RaycastParams.FilterDescendantsInstances = filterList
 
     if self.state == "Chasing" then
         local humanoid = hrp.Parent:FindFirstChild("Humanoid")
