@@ -160,6 +160,8 @@ end
 -- MAIN MOVEMENT LOOP
 ---------------------------------------------------------------
 RunService.RenderStepped:Connect(function()
+	-- NOTE: The ice sliding behavior is tuned for 60 FPS. This likely WILL NOT WORK at frame rates higher than 60.
+
 	if humanoid.Health <= 0 then return end  -- Do not process movement if dead
 
 	isOnIce = checkIfOnIce()

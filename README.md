@@ -9,6 +9,14 @@
 
 *Slick Escape* is a 2.5D stealth-based game built on the Roblox platform. The game challenges players to navigate through levels while avoiding enemy detection.
 
+## Limitations & Performance
+
+- **Ice Sliding Behavior:**  
+  The sliding mechanic for ice zones has been tuned and tested at approximately 60 FPS.  
+  In environments where the frame rate is significantly higher (e.g., 140 FPS) or lower,  
+  the behavior will likely differ due to changes in delta time. So, test with your framerate
+  capped to 60.
+
 ## Features
 
 - **Stealth Mechanics:**  
