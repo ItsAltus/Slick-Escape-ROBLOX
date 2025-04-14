@@ -1,18 +1,27 @@
 local UserInputService = game:GetService("UserInputService")
 local CollectionService = game:GetService("CollectionService")
 local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
 
-local character = script.Parent
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+player.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    humanoid = character:WaitForChild("Humanoid")
+    hrp = character:WaitForChild("HumanoidRootPart")
+end)
 
 local moveSpeed = 16
 local dashSpeed = 35
 local isDashing = false
 local dashCooldown = 2
 local lastDashTime = 0
-local slideMomentum = Vector3.new(0, 0, 0)
+local slideMomentum = Vector3.zero
 
-local moveDirection = Vector3.new(0, 0, 0)
+local moveDirection = Vector3.zero
 local activeKey = nil
 
 local moveKeys = {
@@ -21,6 +30,10 @@ local moveKeys = {
     S = Vector3.new(0, 0, -1),
     D = Vector3.new(-1, 0, 0)
 }
+
+local dashAnimation = Instance.new("Animation")
+dashAnimation.AnimationId = "rbxassetid://94156304050794"
+local dashAnimTrack = humanoid:LoadAnimation(dashAnimation)
 
 UserInputService.InputBegan:Connect(function(input, processed)
     if processed then return end
@@ -34,16 +47,16 @@ UserInputService.InputBegan:Connect(function(input, processed)
         if now - lastDashTime >= dashCooldown and (not isDashing) then
             isDashing = true
 
-            local dashAnimation = Instance.new("Animation")
-            dashAnimation.AnimationId = "rbxassetid://94156304050794"
-            local dashAnimTrack = humanoid:LoadAnimation(dashAnimation)
-            dashAnimTrack.Priority = Enum.AnimationPriority.Action
-            dashAnimTrack:Play()
+            if dashAnimTrack then
+                dashAnimTrack:Play()
+            end
 
             humanoid.WalkSpeed = dashSpeed
             lastDashTime = now
             task.delay(0.3, function()
-                humanoid.WalkSpeed = moveSpeed
+                if humanoid then
+                    humanoid.WalkSpeed = moveSpeed
+                end
                 isDashing = false
             end)
         end
@@ -55,13 +68,15 @@ UserInputService.InputEnded:Connect(function(input, processed)
 
     if activeKey == input.KeyCode.Name then
         activeKey = nil
-        moveDirection = Vector3.new(0, 0, 0)
+        moveDirection = Vector3.zero
     end
 end)
 
 local isOnIce = false
 local function checkIfOnIce()
-    local rayOrigin = character.HumanoidRootPart.Position
+    if not hrp then return false end
+
+    local rayOrigin = hrp.Position
     local rayDirection = Vector3.new(0, -3, 0)
 
     local raycastParams = RaycastParams.new()
@@ -80,7 +95,7 @@ local function checkIfOnIce()
 end
 
 RunService.RenderStepped:Connect(function()
-    if humanoid.Health <= 0 then return end
+    if not humanoid or humanoid.Health <= 0 then return end
 
     isOnIce = checkIfOnIce()
 
@@ -93,7 +108,7 @@ RunService.RenderStepped:Connect(function()
         else
             slideMomentum = slideMomentum * 0.98
             if slideMomentum.Magnitude < 0.1 then
-                slideMomentum = Vector3.new(0, 0, 0)
+                slideMomentum = Vector3.zero
             end
         end
 

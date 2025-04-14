@@ -23,8 +23,15 @@ function PlayerUtils.getCharacter()
 end
 
 function PlayerUtils.getHRP()
-    local character = PlayerUtils.getCharacter()
-    return character:WaitForChild("HumanoidRootPart")
+    local player = PlayerUtils.getPlayer()
+    local character = player.Character
+    if not character then return nil end
+
+    if character:IsDescendantOf(workspace:FindFirstChild("DeadBodies")) then
+        return nil
+    end
+
+    return character:FindFirstChild("HumanoidRootPart")
 end
 
 return PlayerUtils

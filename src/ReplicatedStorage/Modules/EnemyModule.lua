@@ -53,9 +53,9 @@ function EnemyModule.new(enemyModel, waypoint1, waypoint2, settings, player)
     self.noticeTimer = 0
     self.noticeTimerMax = 0.2
     self.movementGraceTimer = 0
-    self.movementGraceDuration = 1
+    self.movementGraceDuration = 0.85
     self.suspicionCooldown = 0
-    self.suspicionCooldownMax = 2
+    self.suspicionCooldownMax = 1.5
     self.axisRecheckTimer = 0
     self.axisRecheckCooldown = 0.2
     self.stuckTimer = 0
@@ -245,11 +245,6 @@ function EnemyModule:moveEnemy(hrp)
             local moveRay = workspace:Raycast(self.enemy.Position, moveDirection * (moveDistance + 1), RaycastParams)
             if not moveRay then
                 self.enemy.Position = self.enemy.Position + snappedDirection * self.chaseSpeed * self.dt
-            else
-                self.chaseAxis = (self.chaseAxis == "X") and "Z" or "X"
-                self.stuckTimer = 1
-                print("[AI] Enemy stuck! Freezing for 1 second.")
-                return
             end
             self.enemy.CFrame = CFrame.new(self.enemy.Position) * CFrame.Angles(0, rotationAngle, 0)
         end
@@ -545,10 +540,21 @@ function EnemyModule:Start()
     self:updateFacingDirection()
     while true do
         local player = PlayerUtils.getPlayer()
-        local hrp = PlayerUtils.getHRP()
-        local humanoid = hrp.Parent:FindFirstChild("Humanoid")
+        local character = player and player.Character
+        local humanoid = character and character:FindFirstChild("Humanoid")
 
-        if not hrp or (hrp and hrp.Parent:FindFirstChild("Humanoid") and hrp.Parent:FindFirstChild("Humanoid").Health <= 0) then
+        if character and humanoid and humanoid.Health > 0 then
+            -- Player is alive and valid
+            local hrp = character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                self:moveEnemy(hrp)
+                self:checkSafeZone(player)
+                self:handleDetection(player, hrp)
+                self:checkPlayerCaught(hrp)
+                self:updateVisionZone()
+                self:updateExclamation()
+            end
+        else
             self.state = "Patrolling"
             self.lastState = "Patrolling"
             self.detectionProgress = 0
@@ -570,13 +576,6 @@ function EnemyModule:Start()
             self:hideExclamation()
 
             self:moveEnemy(self.enemy)
-        else
-            self:moveEnemy(hrp)
-            self:checkSafeZone(player)
-            self:handleDetection(player, hrp)
-            self:checkPlayerCaught(hrp)
-            self:updateVisionZone()
-            self:updateExclamation()
         end
 
         task.wait(self.dt)
