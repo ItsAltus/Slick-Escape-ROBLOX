@@ -1,5 +1,15 @@
--- WinScreenHandler.client.lua
+-- ============================================================
+-- Script Name: WinScreenHandler.client.lua
+-- Project: Slick Escape
+-- Author: DrChicken2424
+-- Description: Displays the win screen when the game is won, resets player level,
+--              and returns the player to the main menu. It anchors the player's character
+--              and resets the camera for UI input after a win.
+-- ============================================================
 
+---------------------------------------------------------------
+-- VARIABLES & SERVICES
+---------------------------------------------------------------
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -8,7 +18,6 @@ local player = Players.LocalPlayer
 local WinGameEvent = ReplicatedStorage:WaitForChild("WinGame")
 local RespawnRequest = ReplicatedStorage:WaitForChild("RespawnRequest")
 
--- Get GUI objects
 local playerGui = player:WaitForChild("PlayerGui")
 local winScreen = playerGui:WaitForChild("WinScreen")
 local levelCompleteGui = playerGui:WaitForChild("LevelComplete")
@@ -19,19 +28,35 @@ local settingsButton = mainMenu:WaitForChild("SettingsButton")
 local winText = winScreen:WaitForChild("WinText")
 local returnButton = winScreen:WaitForChild("ReturnButton")
 
--- Configure initial UI state
+---------------------------------------------------------------
+-- INITIAL UI CONFIGURATION
+---------------------------------------------------------------
 winScreen.Enabled = false
 returnButton.Visible = false
 winText.TextTransparency = 1
 returnButton.TextTransparency = 1
 
+---------------------------------------------------------------
+-- HELPER FUNCTIONS
+---------------------------------------------------------------
+--[[
+    Function: anchorPlayer
+    Description: Anchors or unanchors the player's character by modifying the HumanoidRootPart.
+    Parameters:
+        isAnchored - Boolean indicating whether to anchor (true) or unanchor (false).
+    Returns: None
+]]
 local function anchorPlayer(isAnchored)
     local character = player.Character or player.CharacterAdded:Wait()
     local hrp = character:WaitForChild("HumanoidRootPart")
     hrp.Anchored = isAnchored
 end
 
--- Helper function: Wait for character to exist and load the Humanoid (with a timeout if needed)
+--[[
+    Function: waitForCharacter
+    Description: Waits for the player's character to be available.
+    Returns: The player's character.
+]]
 local function waitForCharacter()
     local char = player.Character
     if not char then
@@ -40,22 +65,23 @@ local function waitForCharacter()
     return char
 end
 
--- When the win event fires, show the win screen and then reset the game state.
+---------------------------------------------------------------
+-- EVENT CONNECTIONS: WIN GAME HANDLING
+---------------------------------------------------------------
 WinGameEvent.OnClientEvent:Connect(function()
     print("Game Won! Showing Win Screen...")
 
-    -- Disable the level complete GUI
+    -- Disable the level complete GUI before showing win screen
     levelCompleteGui.Enabled = false
 
-    -- Enable the win screen
+    -- Enable and display the win screen
     winScreen.Enabled = true
-
     TweenService:Create(winText, TweenInfo.new(1), {TextTransparency = 0}):Play()
     task.wait(1)
     returnButton.Visible = true
     TweenService:Create(returnButton, TweenInfo.new(1), {TextTransparency = 0}):Play()
 
-    -- Wait for the player to click the return button
+    -- Wait until the player clicks the return button
     returnButton.MouseButton1Click:Wait()
 
     -- Reset the player's level and spawn attribute
@@ -65,16 +91,14 @@ WinGameEvent.OnClientEvent:Connect(function()
     -- Fire the server event to respawn the player
     RespawnRequest:FireServer()
 
-    -- Return to main menu – ensure all other GUIs are disabled
+    -- Return to main menu: Disable unnecessary GUIs and anchor player until menu active.
     mainMenu.Enabled = true
     settingsButton.Enabled = false
     settingsMenu.Enabled = false
     winScreen.Enabled = false
-
-    -- Anchor the player's character until the menu is active
     anchorPlayer(true)
 
-    -- Reset the camera so that UI elements can receive input
+    -- Reset the camera so that UI elements can receive input.
     local character = waitForCharacter()
     local humanoid = character:WaitForChild("Humanoid")
     local camera = workspace.CurrentCamera

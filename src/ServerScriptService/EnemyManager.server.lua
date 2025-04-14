@@ -1,14 +1,26 @@
--- EnemyManager.server.lua
+-- ============================================================
+-- Script Name: EnemyManager.server.lua
+-- Project: Slick Escape
+-- Author: DrChicken2424
+-- Description: Initializes and spawns enemy instances based on a configuration table.
+-- ============================================================
+
+---------------------------------------------------------------
+-- VARIABLES & SERVICES
+---------------------------------------------------------------
 local EnemyModule = require(game.ReplicatedStorage.Modules.EnemyModule)
 local Players = game:GetService("Players")
 
+-- Get a player: if none exist immediately, wait until one is added.
 local player = Players:GetPlayers()[1]
 if not player then
     Players.PlayerAdded:Wait()
     player = Players:GetPlayers()[1]
 end
 
--- Define enemy configurations using a table for clarity and ease of extension
+---------------------------------------------------------------
+-- ENEMY CONFIGURATIONS
+---------------------------------------------------------------
 local enemyConfigs = {
     {
         enemyModel = workspace.Enemy1,
@@ -102,12 +114,16 @@ local enemyConfigs = {
     },
 }
 
+---------------------------------------------------------------
+-- ENEMY SPAWNING
+---------------------------------------------------------------
 local enemies = {}
 
+-- Iterate over the enemy configuration table, create enemy instances, and start them.
 for _, config in ipairs(enemyConfigs) do
     local enemy = EnemyModule.new(config.enemyModel, config.waypoint1, config.waypoint2, config.settings, player)
     table.insert(enemies, enemy)
     task.spawn(function()
-        enemy:Start()
+        enemy:Start()  -- Start the enemy's behavior loop
     end)
 end

@@ -1,8 +1,22 @@
+-- ============================================================
+-- Script Name: AdvanceLevelHandler.server.lua
+-- Project: Slick Escape
+-- Author: DrChicken2424
+-- Description: Handles level progression, updating leaderstats and player spawns,
+--              and sends tutorial messages when levels change.
+-- ============================================================
+
+---------------------------------------------------------------
+-- VARIABLES & SERVICES
+---------------------------------------------------------------
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AdvanceLevel = ReplicatedStorage:WaitForChild("AdvanceLevel")
 local startGameEvent = ReplicatedStorage:WaitForChild("StartGame")
 local TutorialEvent = ReplicatedStorage:WaitForChild("TutorialEvent")
 
+---------------------------------------------------------------
+-- EVENT CONNECTIONS
+---------------------------------------------------------------
 startGameEvent.OnServerEvent:Connect(function(player)
     local leaderstats = player:FindFirstChild("leaderstats")
     if leaderstats then
@@ -11,12 +25,13 @@ startGameEvent.OnServerEvent:Connect(function(player)
             level.Value = 1
             print(player.Name .. " started the game at Level 1")
 
+            -- Send a tutorial message to the player on game start
             TutorialEvent:FireClient(player, "Welcome to Slick Escape!\nUse WASD to move.\nPress SHIFT to dash.\nStay out of enemy's vision zones.\nIf an enemy sees you, try freezing in place!\nReach the safezone!")
         else
-            warn(player.Name .. " has no Level stat!")
+            warn(player.Name .. " has no Level stat!")  -- Level stat not found
         end
     else
-        warn(player.Name .. " has no leaderstats!")
+        warn(player.Name .. " has no leaderstats!")  -- Leaderstats folder not found
     end
 end)
 
@@ -37,13 +52,14 @@ AdvanceLevel.OnServerEvent:Connect(function(player)
     player.leaderstats.Level.Value += 1
     print("New Level:", player.leaderstats.Level.Value)
 
+    -- Construct the spawn name by concatenating "Level", the current level, and "Spawn"
     local newSpawn = workspace:FindFirstChild("Level" .. player.leaderstats.Level.Value .. "Spawn")
     if newSpawn then
-        player:SetAttribute("CurrentSpawn", newSpawn.CFrame)
+        player:SetAttribute("CurrentSpawn", newSpawn.CFrame)  -- Store the spawn location as an attribute
 
         local character = player.Character or player.CharacterAdded:Wait()
         local hrp = character:WaitForChild("HumanoidRootPart")
-        hrp.CFrame = newSpawn.CFrame + Vector3.new(0, 3, 0)
+        hrp.CFrame = newSpawn.CFrame + Vector3.new(0, 3, 0)  -- Move character slightly above spawn point
 
         print(player.Name .. " moved to Level " .. player.leaderstats.Level.Value)
 

@@ -1,12 +1,30 @@
+-- ============================================================
+-- Script Name: TutorialHandler.client.lua
+-- Project: Slick Escape
+-- Author: DrChicken2424
+-- Description: Handles the tutorial UI by dynamically fetching and managing
+--              GUI elements, setting up a character viewport, implementing a
+--              typewriter effect for tutorial text, and handling input to skip
+--              or close the tutorial.
+-- ============================================================
+
+---------------------------------------------------------------
+-- VARIABLES & SERVICES
+---------------------------------------------------------------
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 
-------------------------------------------------------------
--- Helper functions to re-fetch our GUI objects dynamically --
-------------------------------------------------------------
+---------------------------------------------------------------
+-- HELPER FUNCTIONS: GUI FETCHING
+---------------------------------------------------------------
+--[[
+    Function: getTutorialGui
+    Description: Retrieves the TutorialGui from the player's PlayerGui.
+    Returns: The TutorialGui instance.
+]]
 local function getTutorialGui()
     local playerGui = player:WaitForChild("PlayerGui")
     local tutGui = playerGui:WaitForChild("TutorialGui")
@@ -14,6 +32,11 @@ local function getTutorialGui()
     return tutGui
 end
 
+--[[
+    Function: getMainFrame
+    Description: Retrieves the MainFrame from the TutorialGui.
+    Returns: The MainFrame instance.
+]]
 local function getMainFrame()
     local tutGui = getTutorialGui()
     local mf = tutGui:WaitForChild("MainFrame")
@@ -21,6 +44,11 @@ local function getMainFrame()
     return mf
 end
 
+--[[
+    Function: getCharacterViewport
+    Description: Retrieves the CharacterViewport from the MainFrame.
+    Returns: The CharacterViewport instance.
+]]
 local function getCharacterViewport()
     local mainFrame = getMainFrame()
     local cv = mainFrame:WaitForChild("CharacterViewport")
@@ -28,6 +56,11 @@ local function getCharacterViewport()
     return cv
 end
 
+--[[
+    Function: getTutorialText
+    Description: Retrieves the TutorialText from the MainFrame.
+    Returns: The TutorialText instance.
+]]
 local function getTutorialText()
     local mainFrame = getMainFrame()
     local tt = mainFrame:WaitForChild("TutorialText")
@@ -35,6 +68,9 @@ local function getTutorialText()
     return tt
 end
 
+---------------------------------------------------------------
+-- HELPER FUNCTIONS: CHARACTER VIEWPORT SETUP
+---------------------------------------------------------------
 ---------------------------------------------
 -- Set up a dedicated camera for the viewport
 ---------------------------------------------
@@ -44,9 +80,14 @@ camera.FieldOfView = 70
 local isTyping = false
 local finishedTyping = false
 
-------------------------------
+---------------------------------------------
 -- Remove existing clones
-------------------------------
+---------------------------------------------
+--[[
+    Function: cleanupCharacterClone
+    Description: Removes any existing character clones from the CharacterViewport.
+    Returns: None
+]]
 local function cleanupCharacterClone()
     local cv = getCharacterViewport()
     for _, child in ipairs(cv:GetChildren()) do
@@ -59,6 +100,11 @@ end
 ---------------------------------------------
 -- Wait for a valid character with a primary part
 ---------------------------------------------
+--[[
+    Function: waitForValidCharacter
+    Description: Waits for a valid character to load that contains a HumanoidRootPart.
+    Returns: The valid character model.
+]]
 local function waitForValidCharacter()
     local character = player.Character or player.CharacterAdded:Wait(5)
     while not character or not character:FindFirstChild("HumanoidRootPart") do
@@ -71,6 +117,11 @@ end
 ---------------------------------------------
 -- Clone the player's character for the viewport
 ---------------------------------------------
+--[[
+    Function: setupCharacterView
+    Description: Clones the player's character and sets it up in the CharacterViewport.
+    Returns: None
+]]
 local function setupCharacterView()
     local characterViewport = getCharacterViewport()
     if not characterViewport then
@@ -92,7 +143,7 @@ local function setupCharacterView()
         return
     end
 
-    task.wait(1)
+    task.wait(1)  -- Wait briefly for character stabilization
 
     local success, charClone = pcall(function()
         return character:Clone()
@@ -102,7 +153,7 @@ local function setupCharacterView()
         return
     end
 
-    -- Remove any LocalScripts
+    -- Remove any LocalScripts from the clone and freeze parts for stable display
     for _, desc in ipairs(charClone:GetDescendants()) do
         if desc:IsA("LocalScript") then
             desc:Destroy()
@@ -116,7 +167,7 @@ local function setupCharacterView()
     charClone.Parent = characterViewport
     print("Cloned character and parented to CharacterViewport.")
 
-    -- Pivot the clone to a known position & orientation
+    -- Pivot the clone to proper position & orientation
     local head = charClone:FindFirstChild("Head")
     local rootPart = charClone:FindFirstChild("HumanoidRootPart") or head
     if rootPart then
@@ -125,7 +176,7 @@ local function setupCharacterView()
         charClone:PivotTo(pivot)
     end
 
-    -- Position the camera to see the face
+    -- Position the camera to view the character's face
     if head then
         local forwardOffset = 2.5
         local verticalOffset = 0.5
@@ -148,10 +199,16 @@ local function setupCharacterView()
     end
 end
 
-
----------------------------------------------
--- Typewriter effect for tutorial text
----------------------------------------------
+---------------------------------------------------------------
+-- TYPEWRITER EFFECT FOR TUTORIAL TEXT
+---------------------------------------------------------------
+--[[
+    Function: typeText
+    Description: Implements a typewriter effect to display the provided text gradually.
+    Parameters:
+        fullText - The complete text string to display.
+    Returns: None
+]]
 local function typeText(fullText)
     local tutorialText = getTutorialText()
     tutorialText.Text = ""
@@ -164,21 +221,29 @@ local function typeText(fullText)
             break
         end
         tutorialText.Text = string.sub(fullText, 1, i)
-        task.wait(0.04)  -- Adjust the speed of the typewriter effect if needed
+        task.wait(0.04)  -- Wait briefly between each character
     end
 
     isTyping = false
     finishedTyping = true
 end
 
----------------------------------------------
--- Show the tutorial overlay with text and a character preview
----------------------------------------------
+---------------------------------------------------------------
+-- SHOW TUTORIAL OVERLAY
+---------------------------------------------------------------
+--[[
+    Function: showTutorial
+    Description: Displays the tutorial overlay with text and a character preview,
+                 and anchors the player's character during the tutorial.
+    Parameters:
+        text - The tutorial message to display.
+    Returns: None
+]]
 local function showTutorial(text)
     local character = waitForValidCharacter()
     local hrp = character:FindFirstChild("HumanoidRootPart")
     if hrp then
-        hrp.Anchored = true -- Freeze player's movement while the tutorial is active
+        hrp.Anchored = true -- Freeze player's movement while tutorial is active
     end
 
     setupCharacterView()
@@ -188,9 +253,9 @@ local function showTutorial(text)
     typeText(text)
 end
 
----------------------------------------------
--- Input listener to allow skipping typing or closing the tutorial
----------------------------------------------
+---------------------------------------------------------------
+-- INPUT LISTENER: SKIP OR CLOSE TUTORIAL
+---------------------------------------------------------------
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed then
         local tutorialGui = getTutorialGui()
@@ -199,7 +264,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
                 if isTyping then
                     isTyping = false -- Skip typewriter effect and show full text immediately
                 elseif finishedTyping then
-                    tutorialGui.Enabled = false
+                    tutorialGui.Enabled = false  -- Close the tutorial overlay
                     local character = waitForValidCharacter()
                     local hrp = character:FindFirstChild("HumanoidRootPart")
                     if hrp then
@@ -212,9 +277,9 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
----------------------------------------------
--- Listen for the TutorialEvent from the server
----------------------------------------------
+---------------------------------------------------------------
+-- EVENT CONNECTION: LISTEN FOR TUTORIAL EVENT
+---------------------------------------------------------------
 local TutorialEvent = ReplicatedStorage:WaitForChild("TutorialEvent")
 TutorialEvent.OnClientEvent:Connect(function(text)
     print("TutorialEvent received with text:", text)

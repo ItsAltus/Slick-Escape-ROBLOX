@@ -1,3 +1,14 @@
+-- ============================================================
+-- Script Name: EnemyModule.lua
+-- Project: Slick Escape
+-- Author: DrChicken2424
+-- Description: Controls enemy behavior including movement (chasing and patrolling),
+--              detection, state management, and visual updates.
+-- ============================================================
+
+---------------------------------------------------------------
+-- VARIABLES & SERVICES
+---------------------------------------------------------------
 local EnemyModule = {}
 EnemyModule.__index = EnemyModule
 
@@ -9,16 +20,30 @@ local Workspace = workspace
 
 local DEFAULT_DT = 0.03
 
--- Helper: Create new RaycastParams with the provided filter list.
+---------------------------------------------------------------
+-- HELPER FUNCTIONS
+---------------------------------------------------------------
+--[[
+    Function: createRaycastParams
+    Description: Creates a new RaycastParams instance with a blacklist filter.
+    Parameters:
+        filterList - Table of instances to ignore during raycasting.
+    Returns: A new RaycastParams instance configured with the filter list.
+]]
 local function createRaycastParams(filterList)
     local params = RaycastParams.new()
     params.FilterType = Enum.RaycastFilterType.Blacklist
     params.IgnoreWater = true
-    params.FilterDescendantsInstances = filterList
+    params.FilterDescendantsInstances = filterList  -- Set the list of instances to ignore
     return params
 end
 
--- Helper: Reset chase-related state.
+--[[
+    Function: resetChaseState
+    Description: Resets enemy-related state variables when the player is lost or respawns.
+    Parameters: None
+    Returns: None
+]]
 function EnemyModule:resetChaseState()
     self.playerInSight = false
     self.chasingPlayer = false
@@ -29,37 +54,58 @@ function EnemyModule:resetChaseState()
     self.state = "Patrolling"
 end
 
--- Helper: Setup collision groups for enemy parts and the vision zone.
+--[[
+    Function: initializeCollisionGroups
+    Description: Sets up collision groups for enemy parts and the vision zone.
+    Parameters: None
+    Returns: None
+]]
 function EnemyModule:initializeCollisionGroups()
     for _, part in ipairs(self.enemy:GetDescendants()) do
         if part:IsA("BasePart") then
-            part.CollisionGroup = "Enemies"
+            part.CollisionGroup = "Enemies"  -- Ensure enemy parts collide appropriately
         end
     end
     if self.visionZone:IsA("BasePart") then
-        self.visionZone.CollisionGroup = "VisionZones"
+        self.visionZone.CollisionGroup = "VisionZones"  -- Separate vision zone collisions
     end
 end
 
--- Helper: Initialize the exclamation mark visuals.
+--[[
+    Function: initializeExclamation
+    Description: Initializes the enemy's exclamation mark visuals by setting transparency and storing offsets for later positioning.
+    Parameters: None
+    Returns: None
+]]
 function EnemyModule:initializeExclamation()
     if self.exclamation and self.exclamation:IsA("Model") and self.exclamation.PrimaryPart then
         for _, part in ipairs(self.exclamation:GetDescendants()) do
             if part:IsA("BasePart") then
-                part.Transparency = 1
+                part.Transparency = 1  -- Hide all parts of the exclamation by default
             end
         end
-        self.exclamationOffsetVector = self.exclamation.PrimaryPart.Position - self.enemy.Position
-        self.originalExclamationRotation = self.exclamation.PrimaryPart.Orientation
+        self.exclamationOffsetVector = self.exclamation.PrimaryPart.Position - self.enemy.Position  -- Calculate offset for repositioning
+        self.originalExclamationRotation = self.exclamation.PrimaryPart.Orientation  -- Store original orientation
     end
 end
 
 ---------------------------------------------------------------
--- Constructor
+-- CONSTRUCTOR
 ---------------------------------------------------------------
+--[[
+    Function: new
+    Description: Constructs a new EnemyModule instance with given enemy model, waypoints, settings, and player.
+    Parameters:
+        enemyModel - The model representing the enemy.
+        waypoint1, waypoint2 - Waypoints for enemy patrolling.
+        settings - Table containing speed, chaseSpeed, VisionSize, and Transparency(vision zone).
+        player - The player instance.
+    Returns: A new EnemyModule instance.
+]]
 function EnemyModule.new(enemyModel, waypoint1, waypoint2, settings, player)
     local self = setmetatable({}, EnemyModule)
 
+    -- Initialize self variables
     self.player = player
     self.enemy = enemyModel
     self.visionZone = enemyModel:WaitForChild("VisionZone")
@@ -72,16 +118,16 @@ function EnemyModule.new(enemyModel, waypoint1, waypoint2, settings, player)
     self.chaseSpeed = self.settings.chaseSpeed or 24
     self.dt = DEFAULT_DT
 
+    -- Setup collision groups and vision zone size/transparency
     self:initializeCollisionGroups()
-    
     if self.visionZone:IsA("BasePart") then
         self.visionZone.Transparency = self.settings.Transparency or 0
         if self.settings.VisionSize then
-            self.visionZone.Size = self.settings.VisionSize
+            self.visionZone.Size = self.settings.VisionSize  -- Apply custom vision size if provided
         end
     end
 
-    -- State variables
+    -- Initialize state variables
     self.playerInSight = false
     self.playerWasMoving = false
     self.hasUsedGrace = false
@@ -122,14 +168,14 @@ function EnemyModule.new(enemyModel, waypoint1, waypoint2, settings, player)
 
     self.playerTouchCount = 0
 
-    -- Vision zone events setup.
+    -- Setup vision zone events for tracking player entry/exit
     self.visionZone.Touched:Connect(function(hit)
         local character = hit:FindFirstAncestorWhichIsA("Model")
         local humanoid = character and character:FindFirstChild("Humanoid")
         if humanoid then
             local currentPlayer = PlayerUtils.getPlayer()
             if character == currentPlayer.Character then
-                self.playerTouchCount = self.playerTouchCount + 1
+                self.playerTouchCount = self.playerTouchCount + 1  -- Increment touch count on entry
                 if self.playerTouchCount == 1 then
                     self.playerInSight = true
                     self.hasUsedGrace = false
@@ -145,7 +191,7 @@ function EnemyModule.new(enemyModel, waypoint1, waypoint2, settings, player)
         if humanoid then
             local currentPlayer = PlayerUtils.getPlayer()
             if character == currentPlayer.Character then
-                self.playerTouchCount = math.max(self.playerTouchCount - 1, 0)
+                self.playerTouchCount = math.max(self.playerTouchCount - 1, 0)  -- Decrement and clamp touch count
                 if self.playerTouchCount == 0 then
                     self.playerInSight = false
                 end
@@ -153,17 +199,25 @@ function EnemyModule.new(enemyModel, waypoint1, waypoint2, settings, player)
         end
     end)
 
+    -- Reset enemy state when the player's character is added (respawn)
     self.player.CharacterAdded:Connect(function(character)
-        self:resetChaseState()
-        print("[SERVER] Player respawned, enemy reset!")
+        self:resetChaseState()  -- Ensure enemy state is reset on respawn
     end)
 
     return self
 end
 
 ---------------------------------------------------------------
--- Movement: Separating chasing and patrolling routines.
+-- MOVEMENT ROUTINES
+-- Separates chasing and patrolling behavior.
 ---------------------------------------------------------------
+--[[
+    Function: moveChasing
+    Description: Moves the enemy towards the player when in "Chasing" state.
+    Parameters:
+        hrp - The HumanoidRootPart of the player's character.
+    Returns: None
+]]
 function EnemyModule:moveChasing(hrp)
     local humanoid = hrp.Parent:FindFirstChild("Humanoid")
     if humanoid and humanoid.Health <= 0 then
@@ -171,18 +225,18 @@ function EnemyModule:moveChasing(hrp)
         return
     end
     if self.stuckTimer > 0 then
-        self.stuckTimer = self.stuckTimer - self.dt
+        self.stuckTimer = self.stuckTimer - self.dt  -- Countdown until unstuck
         return
     end
-    local delta = hrp.Position - self.enemy.Position
+    local delta = hrp.Position - self.enemy.Position  -- Calculate vector difference to player
     self.axisRecheckTimer = self.axisRecheckTimer - self.dt
     if not self.chaseAxis or self.axisRecheckTimer <= 0 then
-        self.chaseAxis = (math.abs(delta.X) > math.abs(delta.Z)) and "X" or "Z"
-        self.axisRecheckTimer = self.axisRecheckCooldown
+        self.chaseAxis = (math.abs(delta.X) > math.abs(delta.Z)) and "X" or "Z"  -- Choose dominant axis
+        self.axisRecheckTimer = self.axisRecheckCooldown  -- Reset timer for rechecking
     end
     local snappedDirection, rotationAngle
     if self.chaseAxis == "X" then
-        if math.abs(delta.X) > 0.5 then
+        if math.abs(delta.X) > 0.5 then  -- Only update if distance threshold exceeded
             if delta.X > 0 then
                 snappedDirection = Vector3.new(1, 0, 0)
                 rotationAngle = math.rad(-90)
@@ -191,7 +245,7 @@ function EnemyModule:moveChasing(hrp)
                 rotationAngle = math.rad(90)
             end
         else
-            self.chaseAxis = "Z"
+            self.chaseAxis = "Z"  -- Switch axis if not enough movement on X
         end
     elseif self.chaseAxis == "Z" then
         if math.abs(delta.Z) > 0.5 then
@@ -203,7 +257,7 @@ function EnemyModule:moveChasing(hrp)
                 rotationAngle = 0
             end
         else
-            self.chaseAxis = "X"
+            self.chaseAxis = "X"  -- Switch axis if not enough movement on Z
         end
     end
     if snappedDirection then
@@ -216,14 +270,20 @@ function EnemyModule:moveChasing(hrp)
         local rayParams = createRaycastParams(filterList)
         local moveRay = Workspace:Raycast(self.enemy.Position, snappedDirection.Unit * (moveDistance + 1), rayParams)
         if not moveRay then
-            self.enemy.Position = self.enemy.Position + snappedDirection * moveDistance
+            self.enemy.Position = self.enemy.Position + snappedDirection * moveDistance  -- Move enemy if path is clear
         end
         self.enemy.CFrame = CFrame.new(self.enemy.Position) * CFrame.Angles(0, rotationAngle, 0)
     end
 end
 
+--[[
+    Function: movePatrolling
+    Description: Moves the enemy along its patrol path between two waypoints.
+    Parameters: None
+    Returns: None
+]]
 function EnemyModule:movePatrolling()
-    local delta = self.currentTarget.Position - self.enemy.Position
+    local delta = self.currentTarget.Position - self.enemy.Position  -- Vector towards current target
     local moveDistance = self.speed * self.dt
     local moveVector = Vector3.zero
     local filterList = { self.enemy, self.visionZone, self.waypoint1, self.waypoint2 }
@@ -232,7 +292,7 @@ function EnemyModule:movePatrolling()
         table.insert(filterList, deadBodiesFolder)
     end
     local rayParams = createRaycastParams(filterList)
-    
+
     if math.abs(delta.X) > 0.5 then
         local directionX = delta.X > 0 and Vector3.new(1, 0, 0) or Vector3.new(-1, 0, 0)
         local moveRay = Workspace:Raycast(self.enemy.Position, directionX * (moveDistance + 1), rayParams)
@@ -257,18 +317,24 @@ function EnemyModule:movePatrolling()
         end
         self.enemy.CFrame = CFrame.new(self.enemy.Position) * CFrame.Angles(0, rotationAngle, 0)
     else
-        local randomAxis = math.random(1, 2)
+        local randomAxis = math.random(1, 2)  -- Randomly choose an axis to wiggle out if stuck
         local randomDirection = (randomAxis == 1) and ((math.random(0, 1) == 0) and Vector3.new(1, 0, 0) or Vector3.new(-1, 0, 0))
                              or ((math.random(0, 1) == 0) and Vector3.new(0, 0, 1) or Vector3.new(0, 0, -1))
         self.enemy.Position = self.enemy.Position + randomDirection * self.speed * self.dt * 0.5
-        print("[AI] Enemy stuck while patrolling, wiggling free!")
     end
     if (Vector3.new(self.enemy.Position.X, 0, self.enemy.Position.Z) - Vector3.new(self.currentTarget.Position.X, 0, self.currentTarget.Position.Z)).Magnitude < 1 then
-        self.currentTarget = (self.currentTarget == self.waypoint1) and self.waypoint2 or self.waypoint1
+        self.currentTarget = (self.currentTarget == self.waypoint1) and self.waypoint2 or self.waypoint1  -- Switch patrol target when close enough
         self:updateFacingDirection()
     end
 end
 
+--[[
+    Function: moveEnemy
+    Description: Chooses the appropriate movement routine based on the enemy's state.
+    Parameters:
+        hrp - The HumanoidRootPart of the player's character.
+    Returns: None
+]]
 function EnemyModule:moveEnemy(hrp)
     if self.state == "Chasing" then
         self:moveChasing(hrp)
@@ -278,14 +344,21 @@ function EnemyModule:moveEnemy(hrp)
         return
     end
 
-    local forward = self.enemy.CFrame.LookVector
-    self.visionZone.Position = self.enemy.Position + Vector3.new(forward.X, 0, forward.Z) * 5
+    local forward = self.enemy.CFrame.LookVector  -- Determine enemy's forward direction
+    self.visionZone.Position = self.enemy.Position + Vector3.new(forward.X, 0, forward.Z) * 5  -- Offset vision zone in front of enemy
     self.visionZone.Orientation = self.enemy.Orientation
 end
 
 ---------------------------------------------------------------
--- Detection and Line-of-Sight
+-- DETECTION & LINE-OF-SIGHT
 ---------------------------------------------------------------
+--[[
+    Function: checkSafeZone
+    Description: Checks if the player is in a safe zone and resets enemy state if so.
+    Parameters:
+        player - The player instance.
+    Returns: None
+]]
 function EnemyModule:checkSafeZone(player)
     if SafeZoneTracker.IsPlayerSafe and SafeZoneTracker.IsPlayerSafe(player) then
         if self.chasingPlayer or self.playerDetected then
@@ -294,11 +367,18 @@ function EnemyModule:checkSafeZone(player)
             self.detectionProgress = 0
             self.chaseAxis = nil
             self.state = "Patrolling"
-            print("[SAFE] Player entered safe zone.")
         end
     end
 end
 
+--[[
+    Function: hasClearLineOfSight
+    Description: Determines if the enemy has a clear line-of-sight to the player.
+    Parameters:
+        enemyPos - The enemy's position.
+        playerModel - The player's character model.
+    Returns: Boolean true if clear line-of-sight; false otherwise.
+]]
 function EnemyModule:hasClearLineOfSight(enemyPos, playerModel)
     local filterList = { self.enemy, self.visionZone, playerModel }
     local rayParams = createRaycastParams(filterList)
@@ -310,16 +390,24 @@ function EnemyModule:hasClearLineOfSight(enemyPos, playerModel)
     }
     for _, part in ipairs(pointsToCheck) do
         if part then
-            local direction = part.Position - enemyPos
+            local direction = part.Position - enemyPos  -- Vector from enemy to part
             local result = Workspace:Raycast(enemyPos, direction, rayParams)
             if not result then
-                return true
+                return true  -- Clear line-of-sight found if raycast does not hit an object
             end
         end
     end
     return false
 end
 
+--[[
+    Function: handleDetection
+    Description: Processes player detection based on movement and line-of-sight, then updates enemy state accordingly.
+    Parameters:
+        player - The player instance.
+        hrp - The HumanoidRootPart of the player's character.
+    Returns: None
+]]
 function EnemyModule:handleDetection(player, hrp)
     local humanoid = hrp.Parent:FindFirstChild("Humanoid")
     if not humanoid or humanoid.Health <= 0 then
@@ -330,16 +418,15 @@ function EnemyModule:handleDetection(player, hrp)
     if self.playerInSight then
         if playerIsMoving then
             if self.movementGraceTimer > 0 then
-                self.movementGraceTimer = self.movementGraceTimer - self.dt
+                self.movementGraceTimer = self.movementGraceTimer - self.dt  -- Countdown grace period
             else
                 if self.state == "Suspicious" then
-                    self.detectionProgress = self.detectionProgress + 60
-                    print("[DETECTION] Player moved after grace expired! Instant bump.")
+                    self.detectionProgress = self.detectionProgress + 60  -- Instant detection after grace expires
                 end
             end
         else
             if not self.hasUsedGrace then
-                self.movementGraceTimer = self.movementGraceDuration
+                self.movementGraceTimer = self.movementGraceDuration  -- Reset grace timer if player stops
                 self.hasUsedGrace = true
             end
         end
@@ -359,7 +446,6 @@ function EnemyModule:handleDetection(player, hrp)
             self.hasUsedGrace = false
             self.movementGraceTimer = 0
             self:hideExclamation()
-            print("[STATE] Full Detection! Chasing player!")
         end
     end
     local hasLOS = self:hasClearLineOfSight(self.enemy.Position, hrp.Parent)
@@ -369,7 +455,6 @@ function EnemyModule:handleDetection(player, hrp)
             if self.noticeTimer >= self.noticeTimerMax then
                 self.state = "Suspicious"
                 self.suspiciousTimer = self.suspiciousTimerMax
-                print("[STATE] Became Suspicious...")
             end
         end
         if self.state == "Suspicious" then
@@ -391,7 +476,6 @@ function EnemyModule:handleDetection(player, hrp)
                 self.chaseAxis = nil
                 self.suspicionCooldown = self.suspicionCooldownMax
                 self:hideExclamation()
-                print("[STATE] Player froze long enough. Returning to Patrol.")
             end
         elseif self.state == "Chasing" then
             if playerIsMoving then
@@ -412,13 +496,19 @@ function EnemyModule:handleDetection(player, hrp)
             self.playerDetected = false
             self.chaseAxis = nil
             self:hideExclamation()
-            print("[STATE] Back to Patrolling...")
         end
     end
     self.detectionProgress = math.clamp(self.detectionProgress, 0, 100)
     self:updateVisualState()
 end
 
+--[[
+    Function: checkPlayerCaught
+    Description: Checks if the enemy is close enough to catch the player, then resets state accordingly.
+    Parameters:
+        hrp - The HumanoidRootPart of the player's character.
+    Returns: None
+]]
 function EnemyModule:checkPlayerCaught(hrp)
     if hrp and self.chasingPlayer then
         local distance = (self.enemy.Position - hrp.Position).Magnitude
@@ -430,15 +520,20 @@ function EnemyModule:checkPlayerCaught(hrp)
             if humanoid and humanoid.Health > 0 then
                 humanoid.Health = 0
                 self:resetChaseState()
-                print("Player has been caught and killed!")
             end
         end
     end
 end
 
 ---------------------------------------------------------------
--- Visual Updates
+-- VISUAL UPDATES
 ---------------------------------------------------------------
+--[[
+    Function: updateFacingDirection
+    Description: Updates enemy orientation to face its current target.
+    Parameters: None
+    Returns: None
+]]
 function EnemyModule:updateFacingDirection()
     local enemyPos = Vector3.new(self.enemy.Position.X, 1, self.enemy.Position.Z)
     local targetPos = Vector3.new(self.currentTarget.Position.X, 1, self.currentTarget.Position.Z)
@@ -446,6 +541,12 @@ function EnemyModule:updateFacingDirection()
     self.enemy.CFrame = lookAtCFrame
 end
 
+--[[
+    Function: updateVisionZone
+    Description: Updates the position and orientation of the enemy's vision zone.
+    Parameters: None
+    Returns: None
+]]
 function EnemyModule:updateVisionZone()
     local forward = self.enemy.CFrame.LookVector
     local halfDepth = self.visionZone.Size.Z / 2
@@ -453,6 +554,12 @@ function EnemyModule:updateVisionZone()
     self.visionZone.Orientation = self.enemy.Orientation
 end
 
+--[[
+    Function: showExclamation
+    Description: Makes the enemy's exclamation mark visible.
+    Parameters: None
+    Returns: None
+]]
 function EnemyModule:showExclamation()
     if self.exclamation then
         for _, part in ipairs(self.exclamation:GetDescendants()) do
@@ -464,6 +571,12 @@ function EnemyModule:showExclamation()
     end
 end
 
+--[[
+    Function: hideExclamation
+    Description: Hides the enemy's exclamation mark.
+    Parameters: None
+    Returns: None
+]]
 function EnemyModule:hideExclamation()
     if self.exclamation then
         for _, part in ipairs(self.exclamation:GetDescendants()) do
@@ -475,6 +588,12 @@ function EnemyModule:hideExclamation()
     end
 end
 
+--[[
+    Function: blinkExclamation
+    Description: Temporarily blinks the exclamation mark for visual feedback.
+    Parameters: None
+    Returns: None
+]]
 function EnemyModule:blinkExclamation()
     if not self.exclamation or self.exclamationFlashing then return end
     self.exclamationFlashing = true
@@ -488,6 +607,12 @@ function EnemyModule:blinkExclamation()
     self.exclamationVisible = true
 end
 
+--[[
+    Function: updateVisualState
+    Description: Handles color and transparency updates based on the enemy's current state.
+    Parameters: None
+    Returns: None
+]]
 function EnemyModule:updateVisualState()
     if self.state ~= self.lastState then
         if self.state == "Patrolling" and self.lastState ~= "Patrolling" then
@@ -503,7 +628,7 @@ function EnemyModule:updateVisualState()
     end
 
     if self.isFlashing then
-        self.flashTimer = self.flashTimer - self.dt
+        self.flashTimer = self.flashTimer - self.dt  -- Count down the flash timer
         if self.flashTimer <= 0 then
             self.flashTimer = self.flashDuration
             self.flashCount = self.flashCount + 1
@@ -549,10 +674,16 @@ function EnemyModule:updateVisualState()
     end
 end
 
+--[[
+    Function: updateExclamation
+    Description: Updates the position and orientation of the exclamation mark relative to the enemy.
+    Parameters: None
+    Returns: None
+]]
 function EnemyModule:updateExclamation()
     local exclamation = self.enemy:FindFirstChild("ExclamationMark")
     if exclamation and exclamation:IsA("Model") and exclamation.PrimaryPart and self.exclamationOffsetVector and self.originalExclamationRotation then
-        local newPos = self.enemy.Position + self.exclamationOffsetVector
+        local newPos = self.enemy.Position + self.exclamationOffsetVector  -- Calculate new position based on offset
         local desiredRotation = CFrame.fromOrientation(
             math.rad(self.originalExclamationRotation.X),
             math.rad(self.originalExclamationRotation.Y),
@@ -563,12 +694,18 @@ function EnemyModule:updateExclamation()
 end
 
 ---------------------------------------------------------------
--- Main Loop
+-- MAIN LOOP
 ---------------------------------------------------------------
+--[[
+    Function: Start
+    Description: The main loop that updates enemy behavior each frame.
+    Parameters: None
+    Returns: None
+]]
 function EnemyModule:Start()
     self:updateFacingDirection()
     while true do
-        local currentPlayer = PlayerUtils.getPlayer()
+        local currentPlayer = PlayerUtils.getPlayer()  -- Get current player each iteration
         local character = currentPlayer and currentPlayer.Character
         local humanoid = character and character:FindFirstChild("Humanoid")
 
@@ -583,6 +720,7 @@ function EnemyModule:Start()
                 self:updateExclamation()
             end
         else
+            -- Reset state if player is not active
             self.state = "Patrolling"
             self.lastState = "Patrolling"
             self.detectionProgress = 0

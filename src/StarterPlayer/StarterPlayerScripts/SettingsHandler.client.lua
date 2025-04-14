@@ -1,3 +1,14 @@
+-- ============================================================
+-- Script Name: SettingsHandler.client.lua
+-- Project: Slick Escape
+-- Author: DrChicken2424
+-- Description: Manages the settings UI for volume and music selection,
+--              allowing players to adjust the background music volume and select a track.
+-- ============================================================
+
+---------------------------------------------------------------
+-- VARIABLES & SERVICES
+---------------------------------------------------------------
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local SoundService = game:GetService("SoundService")
@@ -13,8 +24,8 @@ local backButton = settingsMenu.MainFrame:WaitForChild("BackButton")
 local volumeSlider = settingsMenu.MainFrame:WaitForChild("VolumeSlider")
 local fill = volumeSlider:WaitForChild("Fill")
 local handle = volumeSlider:WaitForChild("Handle")
-fill.Size = UDim2.new(0.5, 0, 1, 0)
-handle.Position = UDim2.new(0.5, -10, 0.5, -10)
+fill.Size = UDim2.new(0.5, 0, 1, 0)  -- Initialize fill size at 50%
+handle.Position = UDim2.new(0.5, -10, 0.5, -10)  -- Center handle on initial fill
 
 local music1Button = settingsMenu.MainFrame:WaitForChild("Music1Button")
 local music2Button = settingsMenu.MainFrame:WaitForChild("Music2Button")
@@ -35,6 +46,9 @@ local musicTracks = {
     "rbxassetid://90896056368857"
 }
 
+---------------------------------------------------------------
+-- EVENT CONNECTIONS
+---------------------------------------------------------------
 settingsButton.MouseButton1Click:Connect(function()
     mainMenu.Enabled = false
     settingsMenu.Enabled = true
@@ -45,6 +59,16 @@ backButton.MouseButton1Click:Connect(function()
     mainMenu.Enabled = true
 end)
 
+---------------------------------------------------------------
+-- MUSIC HANDLING
+---------------------------------------------------------------
+--[[
+    Function: playMusic
+    Description: Sets the background music track to the provided id and plays it.
+    Parameters:
+        id - The sound asset id.
+    Returns: None
+]]
 local function playMusic(id)
     backgroundMusic.SoundId = id
     backgroundMusic:Play()
@@ -62,36 +86,49 @@ music3Button.MouseButton1Click:Connect(function()
     playMusic(musicTracks[3])
 end)
 
+---------------------------------------------------------------
+-- VOLUME ADJUSTMENT
+---------------------------------------------------------------
 local dragging = false
 
+--[[
+    Function: updateVolume
+    Description: Updates the volume slider UI and background music volume based on mouse X position.
+    Parameters:
+        mouseX - The current mouse X coordinate.
+    Returns: None
+]]
 local function updateVolume(mouseX)
     local sliderPos = volumeSlider.AbsolutePosition.X
     local sliderSize = volumeSlider.AbsoluteSize.X
-    local newFillSize = math.clamp((mouseX - sliderPos) / sliderSize, 0, 1)
+    local newFillSize = math.clamp((mouseX - sliderPos) / sliderSize, 0, 1)  -- Calculate fill size as a fraction
 
     fill.Size = UDim2.new(newFillSize, 0, 1, 0)
     handle.Position = UDim2.new(newFillSize, -10, 0.5, -10)
 
-    backgroundMusic.Volume = newFillSize
+    backgroundMusic.Volume = newFillSize  -- Set music volume proportional to the fill size
 end
 
 handle.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
+        dragging = true  -- Begin dragging the slider
     end
 end)
 
 UserInputService.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
+        dragging = false  -- Stop dragging the slider
     end
 end)
 
 UserInputService.InputChanged:Connect(function(input)
     if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        updateVolume(input.Position.X)
+        updateVolume(input.Position.X)  -- Update volume continuously during dragging
     end
 end)
 
+---------------------------------------------------------------
+-- INITIAL MUSIC PLAYBACK
+---------------------------------------------------------------
 backgroundMusic.SoundId = musicTracks[1]
 backgroundMusic:Play()
