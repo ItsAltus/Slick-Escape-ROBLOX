@@ -2,7 +2,7 @@
 	<Meta name="ExplicitAutoJoints">true</Meta>
 	<External>null</External>
 	<External>nil</External>
-	<Item class="ScreenGui" referent="RBX4D517AC6E3DC45CC8E8A7DB6D9720368">
+	<Item class="ScreenGui" referent="RBXEE5A5BA6DDCC4DCF901F1B1D76FFBCE4">
 		<Properties>
 			<BinaryString name="AttributesSerialize"></BinaryString>
 			<bool name="AutoLocalize">true</bool>
@@ -15,7 +15,7 @@
 			<bool name="ResetOnSpawn">true</bool>
 			<Ref name="RootLocalizationTable">null</Ref>
 			<token name="SafeAreaCompatibility">1</token>
-			<token name="ScreenInsets">2</token>
+			<token name="ScreenInsets">1</token>
 			<token name="SelectionBehaviorDown">0</token>
 			<token name="SelectionBehaviorLeft">0</token>
 			<token name="SelectionBehaviorRight">0</token>
@@ -25,7 +25,7 @@
 			<BinaryString name="Tags"></BinaryString>
 			<token name="ZIndexBehavior">1</token>
 		</Properties>
-		<Item class="TextButton" referent="RBX8FAD9559D22C408D918C3200D28793C0">
+		<Item class="TextButton" referent="RBXB6773F6E8CE642E68FBC92201B95973B">
 			<Properties>
 				<bool name="Active">true</bool>
 				<Vector2 name="AnchorPoint">
@@ -125,8 +125,20 @@
 				<bool name="Visible">true</bool>
 				<int name="ZIndex">1</int>
 			</Properties>
+			<Item class="UITextSizeConstraint" referent="RBXC77A268A92894FECBF79907A58141194">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<int name="MaxTextSize">42</int>
+					<int name="MinTextSize">1</int>
+					<string name="Name">UITextSizeConstraint</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
 		</Item>
-		<Item class="TextButton" referent="RBXDC23D156384149049F575C33EBADE9BF">
+		<Item class="TextButton" referent="RBX1C4B8BEE751B4113858D5527B51942F1">
 			<Properties>
 				<bool name="Active">true</bool>
 				<Vector2 name="AnchorPoint">
@@ -225,6 +237,31 @@
 				<token name="TextYAlignment">1</token>
 				<bool name="Visible">true</bool>
 				<int name="ZIndex">1</int>
+			</Properties>
+			<Item class="UITextSizeConstraint" referent="RBX4B7E134320D44A45AAEB46A9FA767CD8">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<int name="MaxTextSize">43</int>
+					<int name="MinTextSize">1</int>
+					<string name="Name">UITextSizeConstraint</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+		</Item>
+		<Item class="UIAspectRatioConstraint" referent="RBXD647F814C7BB4C89A984D8AB4353B041">
+			<Properties>
+				<float name="AspectRatio">1.33333337</float>
+				<token name="AspectType">0</token>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<token name="DominantAxis">0</token>
+				<string name="Name">UIAspectRatioConstraint</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
 	</Item>

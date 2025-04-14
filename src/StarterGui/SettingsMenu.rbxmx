@@ -2,7 +2,7 @@
 	<Meta name="ExplicitAutoJoints">true</Meta>
 	<External>null</External>
 	<External>nil</External>
-	<Item class="ScreenGui" referent="RBX629F726A2FB74B1C89B9966B85CDAEB7">
+	<Item class="ScreenGui" referent="RBX909EEBF9018F410EAA10CE8370614F41">
 		<Properties>
 			<BinaryString name="AttributesSerialize"></BinaryString>
 			<bool name="AutoLocalize">true</bool>
@@ -25,7 +25,7 @@
 			<BinaryString name="Tags"></BinaryString>
 			<token name="ZIndexBehavior">1</token>
 		</Properties>
-		<Item class="Frame" referent="RBXA6CB9C0635644ED482481E745F163372">
+		<Item class="Frame" referent="RBXF4D2138105344FF89FE0B1FF9325893A">
 			<Properties>
 				<bool name="Active">false</bool>
 				<Vector2 name="AnchorPoint">
@@ -88,7 +88,7 @@
 				<bool name="Visible">true</bool>
 				<int name="ZIndex">1</int>
 			</Properties>
-			<Item class="UICorner" referent="RBXD7A5697A343241DF97E1D3475530E745">
+			<Item class="UICorner" referent="RBXA81DC086793D490EA0D5A936105F0E2F">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -102,7 +102,7 @@
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="TextLabel" referent="RBX8076065E554D4231A5F3EBE324D6B2BF">
+			<Item class="TextLabel" referent="RBX868E4152F85143018CD66359E56E008D">
 				<Properties>
 					<bool name="Active">false</bool>
 					<Vector2 name="AnchorPoint">
@@ -164,10 +164,10 @@
 					<Ref name="SelectionImageObject">null</Ref>
 					<int name="SelectionOrder">0</int>
 					<UDim2 name="Size">
-						<XS>0</XS>
-						<XO>200</XO>
-						<YS>0</YS>
-						<YO>50</YO>
+						<XS>0.5</XS>
+						<XO>0</XO>
+						<YS>0.138888896</YS>
+						<YO>0</YO>
 					</UDim2>
 					<token name="SizeConstraint">0</token>
 					<int64 name="SourceAssetId">-1</int64>
@@ -195,8 +195,20 @@
 					<bool name="Visible">true</bool>
 					<int name="ZIndex">1</int>
 				</Properties>
+				<Item class="UITextSizeConstraint" referent="RBX6CB5D2A961974B5395A7657D823A804D">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<int name="MaxTextSize">50</int>
+						<int name="MinTextSize">1</int>
+						<string name="Name">UITextSizeConstraint</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+					</Properties>
+				</Item>
 			</Item>
-			<Item class="TextLabel" referent="RBXBF007A90E2C441B19D23763E833EEE81">
+			<Item class="TextLabel" referent="RBX4711EF46C8D6451A8B27F12855F7D538">
 				<Properties>
 					<bool name="Active">false</bool>
 					<Vector2 name="AnchorPoint">
@@ -241,9 +253,9 @@
 					<Ref name="NextSelectionUp">null</Ref>
 					<string name="OpenTypeFeatures"></string>
 					<UDim2 name="Position">
-						<XS>0.162947938</XS>
+						<XS>0.0309185889</XS>
 						<XO>0</XO>
-						<YS>0.235173807</YS>
+						<YS>0.313645303</YS>
 						<YO>0</YO>
 					</UDim2>
 					<bool name="RichText">false</bool>
@@ -258,10 +270,10 @@
 					<Ref name="SelectionImageObject">null</Ref>
 					<int name="SelectionOrder">0</int>
 					<UDim2 name="Size">
-						<XS>0</XS>
-						<XO>200</XO>
-						<YS>0</YS>
-						<YO>50</YO>
+						<XS>0.5</XS>
+						<XO>0</XO>
+						<YS>0.138888896</YS>
+						<YO>0</YO>
 					</UDim2>
 					<token name="SizeConstraint">0</token>
 					<int64 name="SourceAssetId">-1</int64>
@@ -289,8 +301,20 @@
 					<bool name="Visible">true</bool>
 					<int name="ZIndex">1</int>
 				</Properties>
+				<Item class="UITextSizeConstraint" referent="RBXEBF6C2857B8849B69FECDB4257FA2E42">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<int name="MaxTextSize">50</int>
+						<int name="MinTextSize">1</int>
+						<string name="Name">UITextSizeConstraint</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+					</Properties>
+				</Item>
 			</Item>
-			<Item class="Frame" referent="RBXF4958F4569D14DCE93332C34FBC82AD3">
+			<Item class="Frame" referent="RBX049B68B0DE6A447DB0DF4615B4D5BE68">
 				<Properties>
 					<bool name="Active">false</bool>
 					<Vector2 name="AnchorPoint">
@@ -325,9 +349,9 @@
 					<Ref name="NextSelectionRight">null</Ref>
 					<Ref name="NextSelectionUp">null</Ref>
 					<UDim2 name="Position">
-						<XS>0.0189317111</XS>
+						<XS>0.0269247107</XS>
 						<XO>0</XO>
-						<YS>0.426039487</YS>
+						<YS>0.453410625</YS>
 						<YO>0</YO>
 					</UDim2>
 					<Ref name="RootLocalizationTable">null</Ref>
@@ -341,10 +365,10 @@
 					<Ref name="SelectionImageObject">null</Ref>
 					<int name="SelectionOrder">0</int>
 					<UDim2 name="Size">
-						<XS>0</XS>
-						<XO>627</XO>
-						<YS>0</YS>
-						<YO>100</YO>
+						<XS>0.50816226</XS>
+						<XO>0</XO>
+						<YS>0.0900517777</YS>
+						<YO>0</YO>
 					</UDim2>
 					<token name="SizeConstraint">0</token>
 					<int64 name="SourceAssetId">-1</int64>
@@ -353,7 +377,7 @@
 					<bool name="Visible">true</bool>
 					<int name="ZIndex">1</int>
 				</Properties>
-				<Item class="Frame" referent="RBX9F157BC9BE1847A889E054154F303D4C">
+				<Item class="Frame" referent="RBX8F2620908A1B4C4BBB72C4A7D27ADEB0">
 					<Properties>
 						<bool name="Active">false</bool>
 						<Vector2 name="AnchorPoint">
@@ -417,7 +441,7 @@
 						<int name="ZIndex">1</int>
 					</Properties>
 				</Item>
-				<Item class="ImageButton" referent="RBX853901F25BDB429D8F964556FB9527B5">
+				<Item class="ImageButton" referent="RBX3ABA5B56D86E4E229C993F25866990EA">
 					<Properties>
 						<bool name="Active">true</bool>
 						<Vector2 name="AnchorPoint">
@@ -492,10 +516,10 @@
 						<Ref name="SelectionImageObject">null</Ref>
 						<int name="SelectionOrder">0</int>
 						<UDim2 name="Size">
-							<XS>0</XS>
-							<XO>29</XO>
-							<YS>0</YS>
-							<YO>26</YO>
+							<XS>0.0462519936</XS>
+							<XO>0</XO>
+							<YS>0.25999999</YS>
+							<YO>0</YO>
 						</UDim2>
 						<token name="SizeConstraint">0</token>
 						<Rect2D name="SliceCenter">
@@ -523,7 +547,7 @@
 					</Properties>
 				</Item>
 			</Item>
-			<Item class="TextLabel" referent="RBX265CED3CEA824D38A3320E1BE23B9FB4">
+			<Item class="TextLabel" referent="RBX46184446ED3C4FCE9FF31C295FF2EF87">
 				<Properties>
 					<bool name="Active">false</bool>
 					<Vector2 name="AnchorPoint">
@@ -568,9 +592,9 @@
 					<Ref name="NextSelectionUp">null</Ref>
 					<string name="OpenTypeFeatures"></string>
 					<UDim2 name="Position">
-						<XS>0.631507754</XS>
+						<XS>0.552290142</XS>
 						<XO>0</XO>
-						<YS>0.235173807</YS>
+						<YS>0.313645303</YS>
 						<YO>0</YO>
 					</UDim2>
 					<bool name="RichText">false</bool>
@@ -585,10 +609,10 @@
 					<Ref name="SelectionImageObject">null</Ref>
 					<int name="SelectionOrder">0</int>
 					<UDim2 name="Size">
-						<XS>0</XS>
-						<XO>200</XO>
-						<YS>0</YS>
-						<YO>50</YO>
+						<XS>0.5</XS>
+						<XO>0</XO>
+						<YS>0.138888896</YS>
+						<YO>0</YO>
 					</UDim2>
 					<token name="SizeConstraint">0</token>
 					<int64 name="SourceAssetId">-1</int64>
@@ -616,8 +640,20 @@
 					<bool name="Visible">true</bool>
 					<int name="ZIndex">1</int>
 				</Properties>
+				<Item class="UITextSizeConstraint" referent="RBX5946B7F813E040DE8775092EBEEC4E27">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<int name="MaxTextSize">46</int>
+						<int name="MinTextSize">1</int>
+						<string name="Name">UITextSizeConstraint</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+					</Properties>
+				</Item>
 			</Item>
-			<Item class="TextButton" referent="RBX1DE9C9CBC4774D29A6827AA8D6BAA407">
+			<Item class="TextButton" referent="RBX4D9FEAA402B64F1FACC8A383BBB1F566">
 				<Properties>
 					<bool name="Active">true</bool>
 					<Vector2 name="AnchorPoint">
@@ -665,9 +701,9 @@
 					<Ref name="NextSelectionUp">null</Ref>
 					<string name="OpenTypeFeatures"></string>
 					<UDim2 name="Position">
-						<XS>0.631507754</XS>
+						<XS>0.61781615</XS>
 						<XO>0</XO>
-						<YS>0.351056486</YS>
+						<YS>0.453410625</YS>
 						<YO>0</YO>
 					</UDim2>
 					<Ref name="PressHapticEffect">null</Ref>
@@ -684,10 +720,10 @@
 					<Ref name="SelectionImageObject">null</Ref>
 					<int name="SelectionOrder">0</int>
 					<UDim2 name="Size">
-						<XS>0</XS>
-						<XO>200</XO>
-						<YS>0</YS>
-						<YO>50</YO>
+						<XS>0.367175192</XS>
+						<XO>0</XO>
+						<YS>0.101993129</YS>
+						<YO>0</YO>
 					</UDim2>
 					<token name="SizeConstraint">0</token>
 					<int64 name="SourceAssetId">-1</int64>
@@ -716,8 +752,20 @@
 					<bool name="Visible">true</bool>
 					<int name="ZIndex">1</int>
 				</Properties>
+				<Item class="UITextSizeConstraint" referent="RBX27649DC0B62B4165B9D1681CF10303F4">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<int name="MaxTextSize">50</int>
+						<int name="MinTextSize">1</int>
+						<string name="Name">UITextSizeConstraint</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+					</Properties>
+				</Item>
 			</Item>
-			<Item class="TextButton" referent="RBX7D6FBDB48416453F882785F851F337E9">
+			<Item class="TextButton" referent="RBXFFDD13637C814DBE9EB52B0072019FD8">
 				<Properties>
 					<bool name="Active">true</bool>
 					<Vector2 name="AnchorPoint">
@@ -765,9 +813,9 @@
 					<Ref name="NextSelectionUp">null</Ref>
 					<string name="OpenTypeFeatures"></string>
 					<UDim2 name="Position">
-						<XS>0.631507754</XS>
+						<XS>0.617815435</XS>
 						<XO>0</XO>
-						<YS>0.468643397</YS>
+						<YS>0.586350679</YS>
 						<YO>0</YO>
 					</UDim2>
 					<Ref name="PressHapticEffect">null</Ref>
@@ -784,10 +832,10 @@
 					<Ref name="SelectionImageObject">null</Ref>
 					<int name="SelectionOrder">0</int>
 					<UDim2 name="Size">
-						<XS>0</XS>
-						<XO>200</XO>
-						<YS>0</YS>
-						<YO>50</YO>
+						<XS>0.3676081</XS>
+						<XO>0</XO>
+						<YS>0.102113403</YS>
+						<YO>0</YO>
 					</UDim2>
 					<token name="SizeConstraint">0</token>
 					<int64 name="SourceAssetId">-1</int64>
@@ -816,8 +864,20 @@
 					<bool name="Visible">true</bool>
 					<int name="ZIndex">1</int>
 				</Properties>
+				<Item class="UITextSizeConstraint" referent="RBX9332482C5FEA49E79F80DE38DF419C8E">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<int name="MaxTextSize">50</int>
+						<int name="MinTextSize">1</int>
+						<string name="Name">UITextSizeConstraint</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+					</Properties>
+				</Item>
 			</Item>
-			<Item class="TextButton" referent="RBXA81BB376356E4DC1AD91DBDB834D34B5">
+			<Item class="TextButton" referent="RBXBB55B8F4B91F4038988D83168667B1D1">
 				<Properties>
 					<bool name="Active">true</bool>
 					<Vector2 name="AnchorPoint">
@@ -865,9 +925,9 @@
 					<Ref name="NextSelectionUp">null</Ref>
 					<string name="OpenTypeFeatures"></string>
 					<UDim2 name="Position">
-						<XS>0.631507754</XS>
+						<XS>0.617815793</XS>
 						<XO>0</XO>
-						<YS>0.587934434</YS>
+						<YS>0.726112664</YS>
 						<YO>0</YO>
 					</UDim2>
 					<Ref name="PressHapticEffect">null</Ref>
@@ -884,10 +944,10 @@
 					<Ref name="SelectionImageObject">null</Ref>
 					<int name="SelectionOrder">0</int>
 					<UDim2 name="Size">
-						<XS>0</XS>
-						<XO>200</XO>
-						<YS>0</YS>
-						<YO>50</YO>
+						<XS>0.368047535</XS>
+						<XO>0</XO>
+						<YS>0.102235429</YS>
+						<YO>0</YO>
 					</UDim2>
 					<token name="SizeConstraint">0</token>
 					<int64 name="SourceAssetId">-1</int64>
@@ -916,8 +976,20 @@
 					<bool name="Visible">true</bool>
 					<int name="ZIndex">1</int>
 				</Properties>
+				<Item class="UITextSizeConstraint" referent="RBXFE80D9253C464B049D2653E4976D2B12">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<int name="MaxTextSize">50</int>
+						<int name="MinTextSize">1</int>
+						<string name="Name">UITextSizeConstraint</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+					</Properties>
+				</Item>
 			</Item>
-			<Item class="TextButton" referent="RBXF6F34B09687443E2A37EFD4D55CE0025">
+			<Item class="TextButton" referent="RBX5700116BDB944DCA90449D15186E15F4">
 				<Properties>
 					<bool name="Active">true</bool>
 					<Vector2 name="AnchorPoint">
@@ -965,9 +1037,9 @@
 					<Ref name="NextSelectionUp">null</Ref>
 					<string name="OpenTypeFeatures"></string>
 					<UDim2 name="Position">
-						<XS>0.00540906005</XS>
+						<XS>0.00540905772</XS>
 						<XO>0</XO>
-						<YS>0.889570475</YS>
+						<YS>0.889570415</YS>
 						<YO>0</YO>
 					</UDim2>
 					<Ref name="PressHapticEffect">null</Ref>
@@ -984,10 +1056,10 @@
 					<Ref name="SelectionImageObject">null</Ref>
 					<int name="SelectionOrder">0</int>
 					<UDim2 name="Size">
-						<XS>0</XS>
-						<XO>200</XO>
-						<YS>0</YS>
-						<YO>50</YO>
+						<XS>0.303422987</XS>
+						<XO>0</XO>
+						<YS>0.103064954</YS>
+						<YO>0</YO>
 					</UDim2>
 					<token name="SizeConstraint">0</token>
 					<int64 name="SourceAssetId">-1</int64>
@@ -1016,7 +1088,32 @@
 					<bool name="Visible">true</bool>
 					<int name="ZIndex">1</int>
 				</Properties>
+				<Item class="UITextSizeConstraint" referent="RBXDD5346145A2B45D7B2A48686ED735BBC">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<int name="MaxTextSize">50</int>
+						<int name="MinTextSize">1</int>
+						<string name="Name">UITextSizeConstraint</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+					</Properties>
+				</Item>
 			</Item>
+		</Item>
+		<Item class="UIAspectRatioConstraint" referent="RBXCBD7F0D7BBB5478E9F76AFC1594BB28F">
+			<Properties>
+				<float name="AspectRatio">1.33333337</float>
+				<token name="AspectType">0</token>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<token name="DominantAxis">0</token>
+				<string name="Name">UIAspectRatioConstraint</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
 		</Item>
 	</Item>
 </roblox>

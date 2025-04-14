@@ -2,7 +2,7 @@
 	<Meta name="ExplicitAutoJoints">true</Meta>
 	<External>null</External>
 	<External>nil</External>
-	<Item class="ScreenGui" referent="RBX98430069973845A195C0059FF8351C82">
+	<Item class="ScreenGui" referent="RBX396320A8F8F7459399B45EDB48869D2C">
 		<Properties>
 			<BinaryString name="AttributesSerialize"></BinaryString>
 			<bool name="AutoLocalize">true</bool>
@@ -10,12 +10,12 @@
 			<bool name="ClipToDeviceSafeArea">true</bool>
 			<bool name="DefinesCapabilities">false</bool>
 			<int name="DisplayOrder">0</int>
-			<bool name="Enabled">false</bool>
+			<bool name="Enabled">true</bool>
 			<string name="Name">DeathScreen</string>
 			<bool name="ResetOnSpawn">true</bool>
 			<Ref name="RootLocalizationTable">null</Ref>
 			<token name="SafeAreaCompatibility">1</token>
-			<token name="ScreenInsets">2</token>
+			<token name="ScreenInsets">1</token>
 			<token name="SelectionBehaviorDown">0</token>
 			<token name="SelectionBehaviorLeft">0</token>
 			<token name="SelectionBehaviorRight">0</token>
@@ -25,7 +25,7 @@
 			<BinaryString name="Tags"></BinaryString>
 			<token name="ZIndexBehavior">1</token>
 		</Properties>
-		<Item class="TextLabel" referent="RBX5FC233F651E445B5B00F6D3CA7C7F219">
+		<Item class="TextLabel" referent="RBX4D93E17A58BF4940830EDFC2D7E7D196">
 			<Properties>
 				<bool name="Active">false</bool>
 				<Vector2 name="AnchorPoint">
@@ -119,8 +119,20 @@
 				<bool name="Visible">true</bool>
 				<int name="ZIndex">1</int>
 			</Properties>
+			<Item class="UITextSizeConstraint" referent="RBXE1B38E5EB3D5497AB397F97ACE32CAFB">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<int name="MaxTextSize">100</int>
+					<int name="MinTextSize">1</int>
+					<string name="Name">UITextSizeConstraint</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
 		</Item>
-		<Item class="TextButton" referent="RBX5836B0C74D5C46A1A2AC08330FA9DD23">
+		<Item class="TextButton" referent="RBX63CFDBCEC57445AD983584D10D69D310">
 			<Properties>
 				<bool name="Active">false</bool>
 				<Vector2 name="AnchorPoint">
@@ -169,7 +181,7 @@
 				<Ref name="NextSelectionUp">null</Ref>
 				<string name="OpenTypeFeatures"></string>
 				<UDim2 name="Position">
-					<XS>0.449999988</XS>
+					<XS>0.319999993</XS>
 					<XO>0</XO>
 					<YS>0.600000024</YS>
 					<YO>0</YO>
@@ -188,10 +200,10 @@
 				<Ref name="SelectionImageObject">null</Ref>
 				<int name="SelectionOrder">0</int>
 				<UDim2 name="Size">
-					<XS>0</XS>
-					<XO>285</XO>
-					<YS>0</YS>
-					<YO>101</YO>
+					<XS>0.356249988</XS>
+					<XO>0</XO>
+					<YS>0.168333337</YS>
+					<YO>0</YO>
 				</UDim2>
 				<token name="SizeConstraint">0</token>
 				<int64 name="SourceAssetId">-1</int64>
@@ -219,6 +231,31 @@
 				<token name="TextYAlignment">1</token>
 				<bool name="Visible">false</bool>
 				<int name="ZIndex">1</int>
+			</Properties>
+			<Item class="UITextSizeConstraint" referent="RBXF090D6EEA7624614B0FA1D4BDFB890E7">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<int name="MaxTextSize">100</int>
+					<int name="MinTextSize">1</int>
+					<string name="Name">UITextSizeConstraint</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+		</Item>
+		<Item class="UIAspectRatioConstraint" referent="RBX06DF3064D1C0479F9EBE8B75DF6527DD">
+			<Properties>
+				<float name="AspectRatio">1.33333337</float>
+				<token name="AspectType">0</token>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<token name="DominantAxis">0</token>
+				<string name="Name">UIAspectRatioConstraint</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
 	</Item>
