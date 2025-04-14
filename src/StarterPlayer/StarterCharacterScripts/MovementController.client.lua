@@ -163,20 +163,19 @@ RunService.RenderStepped:Connect(function()
 	if humanoid.Health <= 0 then return end  -- Do not process movement if dead
 
 	isOnIce = checkIfOnIce()
-	print("Is on ice: " .. tostring(isOnIce))
 
 	if isOnIce then
 		-- Set maximum sliding speed depending on whether the player is dashing.
-		local maxSlideSpeed = isDashing and 3 or 1.5
+		local maxSlideSpeed = isDashing and 4 or 3
 		if moveDirection.Magnitude > 0 then
 			-- Increase slide momentum gradually when moving
-			local accel = isDashing and 0.2 or 0.04
+			local accel = isDashing and 0.2 or 0.1
 			slideMomentum = slideMomentum + moveDirection * accel
 		else
 			-- Gradually decrease slide momentum if no directional input
-			slideMomentum = slideMomentum * 0.975
+			slideMomentum = slideMomentum * 0.98
 			if slideMomentum.Magnitude < 0.1 then
-				slideMomentum = Vector3.new(0, 0, 0)
+				slideMomentum = Vector3.zero
 			end
 		end
 
@@ -187,7 +186,7 @@ RunService.RenderStepped:Connect(function()
 
 		humanoid:Move(slideMomentum, false)  -- Move according to sliding momentum
 	else
-		slideMomentum = Vector3.new(0, 0, 0)  -- Reset slide momentum when not on ice
+		slideMomentum = Vector3.zero  -- Reset slide momentum when not on ice
 		if moveDirection.Magnitude > 0 then
 			humanoid:Move(moveDirection, false)  -- Normal movement
 		end
