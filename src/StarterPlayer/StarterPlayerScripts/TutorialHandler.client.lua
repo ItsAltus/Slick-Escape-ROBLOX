@@ -2,10 +2,10 @@
 -- Script Name: TutorialHandler.client.lua
 -- Project: Slick Escape
 -- Author: DrChicken2424
--- Description: Handles the tutorial UI by dynamically fetching and managing
---              GUI elements, setting up a character viewport, implementing a
---              typewriter effect for tutorial text, and handling input to skip
---              or close the tutorial.
+-- Description: Handles the tutorial overlay by dynamically fetching and managing
+--              GUI elements, setting up a character viewport with a dedicated camera,
+--              implementing a typewriter effect for tutorial text, and handling input
+--              to skip or close the tutorial.
 -- ============================================================
 
 ---------------------------------------------------------------
@@ -68,7 +68,7 @@ end
 -- HELPER FUNCTIONS: CHARACTER VIEWPORT SETUP
 ---------------------------------------------------------------
 ---------------------------------------------
--- Set up a dedicated camera for the viewport
+-- Set up a dedicated camera for the viewport.
 ---------------------------------------------
 local camera = Instance.new("Camera")
 camera.FieldOfView = 70
@@ -77,12 +77,12 @@ local isTyping = false
 local finishedTyping = false
 
 ---------------------------------------------
--- Remove existing clones
+-- Remove existing clones.
 ---------------------------------------------
 --[[
     Function: cleanupCharacterClone
     Description: Removes any existing character clones from the CharacterViewport.
-    Returns: None
+    Returns: None.
 ]]
 local function cleanupCharacterClone()
     local cv = getCharacterViewport()
@@ -94,7 +94,7 @@ local function cleanupCharacterClone()
 end
 
 ---------------------------------------------
--- Wait for a valid character with a primary part
+-- Wait for a valid character with a primary part.
 ---------------------------------------------
 --[[
     Function: waitForValidCharacter
@@ -103,7 +103,9 @@ end
 ]]
 local function waitForValidCharacter()
     local character = player.Character or player.CharacterAdded:Wait(5)
-    while not character or not character:FindFirstChild("HumanoidRootPart") do
+    -- Check if character is a descendant of the DeadBodies folder
+    while not character or not character:FindFirstChild("HumanoidRootPart") or 
+          (character:IsDescendantOf(workspace:FindFirstChild("DeadBodies"))) do
         task.wait(0.1)
         character = player.Character or player.CharacterAdded:Wait(5)
     end
@@ -111,12 +113,12 @@ local function waitForValidCharacter()
 end
 
 ---------------------------------------------
--- Clone the player's character for the viewport
+-- Clone the player's character for the viewport.
 ---------------------------------------------
 --[[
     Function: setupCharacterView
     Description: Clones the player's character and sets it up in the CharacterViewport.
-    Returns: None
+    Returns: None.
 ]]
 local function setupCharacterView()
     local characterViewport = getCharacterViewport()
@@ -141,6 +143,9 @@ local function setupCharacterView()
 
     task.wait(1)  -- Wait briefly for character stabilization
 
+    -- Ensure the character can be cloned
+    character.Archivable = true
+
     local success, charClone = pcall(function()
         return character:Clone()
     end)
@@ -161,6 +166,7 @@ local function setupCharacterView()
 
     cleanupCharacterClone()
     charClone.Parent = characterViewport
+    print("Cloned character and parented to CharacterViewport.")
 
     -- Pivot the clone to proper position & orientation
     local head = charClone:FindFirstChild("Head")
@@ -183,9 +189,11 @@ local function setupCharacterView()
         local finalCameraCFrame = pivot * CFrame.Angles(math.rad(-downwardAngleDeg), 0, 0)
 
         camera.CFrame = finalCameraCFrame
+        print("Camera angled downward to view the face.")
     else
         if rootPart then
             camera.CFrame = CFrame.new(rootPart.Position + Vector3.new(0, 2, 5), rootPart.Position)
+            print("No Head found; used HumanoidRootPart for camera.")
         else
             warn("No suitable part found to set the camera view!")
         end
@@ -200,7 +208,7 @@ end
     Description: Implements a typewriter effect to display the provided text gradually.
     Parameters:
         fullText - The complete text string to display.
-    Returns: None
+    Returns: None.
 ]]
 local function typeText(fullText)
     local tutorialText = getTutorialText()
@@ -227,16 +235,16 @@ end
 --[[
     Function: showTutorial
     Description: Displays the tutorial overlay with text and a character preview,
-                 and anchors the player's character during the tutorial.
+                 anchoring the player's character during the tutorial.
     Parameters:
         text - The tutorial message to display.
-    Returns: None
+    Returns: None.
 ]]
 local function showTutorial(text)
     local character = waitForValidCharacter()
     local hrp = character:FindFirstChild("HumanoidRootPart")
     if hrp then
-        hrp.Anchored = true -- Freeze player's movement while tutorial is active
+        hrp.Anchored = true  -- Freeze player's movement while tutorial is active
     end
 
     setupCharacterView()
@@ -255,15 +263,15 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if tutorialGui.Enabled then
             if input.UserInputType == Enum.UserInputType.MouseButton1 then
                 if isTyping then
-                    isTyping = false -- Skip typewriter effect and show full text immediately
+                    isTyping = false  -- Skip typewriter effect and immediately display full text
                 elseif finishedTyping then
                     tutorialGui.Enabled = false  -- Close the tutorial overlay
                     local character = waitForValidCharacter()
                     local hrp = character:FindFirstChild("HumanoidRootPart")
                     if hrp then
-                        hrp.Anchored = false -- Unfreeze the player
+                        hrp.Anchored = false  -- Unfreeze the player's movement
                     end
-                    cleanupCharacterClone()
+                    cleanupCharacterClone()  -- Remove cloned character from the viewport
                 end
             end
         end

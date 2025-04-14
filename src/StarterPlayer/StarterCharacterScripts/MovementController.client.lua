@@ -134,15 +134,19 @@ ContextActionService:BindAction("DashAction", dashAction, false, Enum.KeyCode.Le
 ]]
 local isOnIce = false
 local function checkIfOnIce()
-    local rayOrigin = character.HumanoidRootPart.Position
+    -- Ensure that the HRP exists and belongs to an active character (i.e. not in DeadBodies)
+    if not hrp or not hrp.Parent or hrp.Parent:IsDescendantOf(workspace:FindFirstChild("DeadBodies")) then
+        return false
+    end
+
+    local rayOrigin = hrp.Position
     local rayDirection = Vector3.new(0, -3, 0)
 
     local raycastParams = RaycastParams.new()
-    raycastParams.FilterDescendantsInstances = {character}
+    raycastParams.FilterDescendantsInstances = {character}  -- Ignore the player's own character parts
     raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
 
     local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
-
     if result and result.Instance then
         if CollectionService:HasTag(result.Instance, "IceZone") then
             return true
@@ -159,6 +163,7 @@ RunService.RenderStepped:Connect(function()
 	if humanoid.Health <= 0 then return end  -- Do not process movement if dead
 
 	isOnIce = checkIfOnIce()
+	print("Is on ice: " .. tostring(isOnIce))
 
 	if isOnIce then
 		-- Set maximum sliding speed depending on whether the player is dashing.
