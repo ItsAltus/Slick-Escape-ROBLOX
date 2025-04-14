@@ -69,8 +69,6 @@ end
 -- EVENT CONNECTIONS: WIN GAME HANDLING
 ---------------------------------------------------------------
 WinGameEvent.OnClientEvent:Connect(function()
-    print("Game Won! Showing Win Screen...")
-
     -- Disable the level complete GUI before showing win screen
     levelCompleteGui.Enabled = false
 
@@ -104,6 +102,4 @@ WinGameEvent.OnClientEvent:Connect(function()
     local camera = workspace.CurrentCamera
     camera.CameraType = Enum.CameraType.Custom
     camera.CameraSubject = humanoid
-
-    print("Returned to Main Menu; camera reset for UI input.")
 end)

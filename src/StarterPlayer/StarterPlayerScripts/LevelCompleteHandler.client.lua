@@ -33,7 +33,6 @@ nextButton.TextTransparency = 1
 -- EVENT CONNECTIONS
 ---------------------------------------------------------------
 NextLevelEvent.OnClientEvent:Connect(function()
-    print("Level Complete! Showing UI...")
     task.wait(0.5)
 
     -- Anchor the player's character during the UI display to prevent movement
@@ -61,8 +60,6 @@ NextLevelEvent.OnClientEvent:Connect(function()
     completeText.TextTransparency = 1
     nextButton.TextTransparency = 1
     nextButton.Visible = false
-
-    print(player.leaderstats.Level.Value)
 
     -- Unanchor the player's character after UI is dismissed
     hrp = PlayerUtils.getHRP()

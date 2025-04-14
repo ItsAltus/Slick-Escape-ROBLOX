@@ -28,7 +28,6 @@ local player = Players.LocalPlayer
 local function getTutorialGui()
     local playerGui = player:WaitForChild("PlayerGui")
     local tutGui = playerGui:WaitForChild("TutorialGui")
-    print("Found TutorialGui:", tutGui)
     return tutGui
 end
 
@@ -40,7 +39,6 @@ end
 local function getMainFrame()
     local tutGui = getTutorialGui()
     local mf = tutGui:WaitForChild("MainFrame")
-    print("Found MainFrame:", mf)
     return mf
 end
 
@@ -52,7 +50,6 @@ end
 local function getCharacterViewport()
     local mainFrame = getMainFrame()
     local cv = mainFrame:WaitForChild("CharacterViewport")
-    print("Found CharacterViewport:", cv)
     return cv
 end
 
@@ -64,7 +61,6 @@ end
 local function getTutorialText()
     local mainFrame = getMainFrame()
     local tt = mainFrame:WaitForChild("TutorialText")
-    print("Found TutorialText:", tt)
     return tt
 end
 
@@ -165,7 +161,6 @@ local function setupCharacterView()
 
     cleanupCharacterClone()
     charClone.Parent = characterViewport
-    print("Cloned character and parented to CharacterViewport.")
 
     -- Pivot the clone to proper position & orientation
     local head = charClone:FindFirstChild("Head")
@@ -188,11 +183,9 @@ local function setupCharacterView()
         local finalCameraCFrame = pivot * CFrame.Angles(math.rad(-downwardAngleDeg), 0, 0)
 
         camera.CFrame = finalCameraCFrame
-        print("Camera angled downward to view the face.")
     else
         if rootPart then
             camera.CFrame = CFrame.new(rootPart.Position + Vector3.new(0, 2, 5), rootPart.Position)
-            print("No Head found; used HumanoidRootPart for camera.")
         else
             warn("No suitable part found to set the camera view!")
         end
@@ -282,6 +275,5 @@ end)
 ---------------------------------------------------------------
 local TutorialEvent = ReplicatedStorage:WaitForChild("TutorialEvent")
 TutorialEvent.OnClientEvent:Connect(function(text)
-    print("TutorialEvent received with text:", text)
     showTutorial(text)
 end)

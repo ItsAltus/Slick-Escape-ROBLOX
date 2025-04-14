@@ -23,7 +23,6 @@ startGameEvent.OnServerEvent:Connect(function(player)
         local level = leaderstats:FindFirstChild("Level")
         if level then
             level.Value = 1
-            print(player.Name .. " started the game at Level 1")
 
             -- Send a tutorial message to the player on game start
             TutorialEvent:FireClient(player, "Welcome to Slick Escape!\nUse WASD to move.\nPress SHIFT to dash.\nStay out of enemy's vision zones.\nIf an enemy sees you, try freezing in place!\nReach the safezone!")
@@ -48,9 +47,7 @@ AdvanceLevel.OnServerEvent:Connect(function(player)
         return
     end
 
-    print("Current Level:", player.leaderstats.Level.Value)
     player.leaderstats.Level.Value += 1
-    print("New Level:", player.leaderstats.Level.Value)
 
     -- Construct the spawn name by concatenating "Level", the current level, and "Spawn"
     local newSpawn = workspace:FindFirstChild("Level" .. player.leaderstats.Level.Value .. "Spawn")
@@ -61,8 +58,6 @@ AdvanceLevel.OnServerEvent:Connect(function(player)
         local hrp = character:WaitForChild("HumanoidRootPart")
         hrp.CFrame = newSpawn.CFrame + Vector3.new(0, 3, 0)  -- Move character slightly above spawn point
 
-        print(player.Name .. " moved to Level " .. player.leaderstats.Level.Value)
-
         if player.leaderstats.Level.Value == 1 then
             TutorialEvent:FireClient(player, "Welcome to Slick Escape!\nUse WASD to move.\nPress SHIFT to dash.\nStay out of enemy's vision zones.\nIf an enemy sees you, try freezing in place!\nReach the safezone!")
         elseif player.leaderstats.Level.Value == 2 then
@@ -72,7 +67,6 @@ AdvanceLevel.OnServerEvent:Connect(function(player)
         end
 
     else
-        print(player.Name .. " finished the game!")
         local WinGameEvent = ReplicatedStorage:WaitForChild("WinGame")
         WinGameEvent:FireClient(player)
     end

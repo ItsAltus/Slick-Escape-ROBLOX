@@ -132,17 +132,24 @@ ContextActionService:BindAction("DashAction", dashAction, false, Enum.KeyCode.Le
     Description: Casts a downward ray from the player's HRP to detect if the player is on an "IceZone".
     Returns: True if the ray hits a part tagged "IceZone"; false otherwise.
 ]]
+local isOnIce = false
 local function checkIfOnIce()
-	local rayOrigin = hrp.Position
-	local rayDirection = Vector3.new(0, -3, 0)
-	local raycastParams = RaycastParams.new()
-	raycastParams.FilterDescendantsInstances = {character}  -- Ignore the player's own character parts
-	raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
-	local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
-	if result and result.Instance and CollectionService:HasTag(result.Instance, "IceZone") then
-		return true
-	end
-	return false
+    local rayOrigin = character.HumanoidRootPart.Position
+    local rayDirection = Vector3.new(0, -3, 0)
+
+    local raycastParams = RaycastParams.new()
+    raycastParams.FilterDescendantsInstances = {character}
+    raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+    local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+
+    if result and result.Instance then
+        if CollectionService:HasTag(result.Instance, "IceZone") then
+            return true
+        end
+    end
+
+    return false
 end
 
 ---------------------------------------------------------------
@@ -151,9 +158,9 @@ end
 RunService.RenderStepped:Connect(function()
 	if humanoid.Health <= 0 then return end  -- Do not process movement if dead
 
-	local onIce = checkIfOnIce()
+	isOnIce = checkIfOnIce()
 
-	if onIce then
+	if isOnIce then
 		-- Set maximum sliding speed depending on whether the player is dashing.
 		local maxSlideSpeed = isDashing and 3 or 1.5
 		if moveDirection.Magnitude > 0 then

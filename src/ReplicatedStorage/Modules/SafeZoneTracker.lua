@@ -23,7 +23,6 @@ SafeZoneEvent.OnServerEvent:Connect(function(player, isSafe)
         playerSafeStatus[player] = isSafe
 
         if isSafe then
-            print(player.Name .. " completed the level!")
             NextLevelEvent:FireClient(player)  -- Notify the player to advance to the next level
         end
     end
