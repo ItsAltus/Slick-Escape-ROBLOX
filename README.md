@@ -1,7 +1,7 @@
 # Slick Escape
 
 **Project:** Slick Escape  
-**Author:** DrChicken2424  
+**Author:** ItsAltus(GitHub) / DrChicken2424 (ROBLOX)
 
 **Play the Game:** [Slick Escape Demo](https://www.roblox.com/games/98115389918774/Slick-Escape-Demo)
 
@@ -62,6 +62,3 @@ The project follows a modular folder layout with clear separation between differ
 
 - **DrChicken2424:**  
   Developer and author of *Slick Escape*.
----
-
-*Thank you for checking out Slick Escape!*
