@@ -7,10 +7,15 @@ local settingsButton = mainMenu:WaitForChild("SettingsButton")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local setSpawnEvent = ReplicatedStorage:WaitForChild("SetSpawn")
 local startGameEvent = ReplicatedStorage:WaitForChild("StartGame")
+local playerGui = player:WaitForChild("PlayerGui")
+local winScreen = playerGui:WaitForChild("WinScreen")
+local levelCompleteGui = playerGui:WaitForChild("LevelComplete")
 
 local Level1Spawn = workspace:WaitForChild("Level1Spawn")
 
 mainMenu.Enabled = true
+winScreen.Enabled = false
+levelCompleteGui.Enabled = false
 
 local function anchorPlayer(isAnchored)
     local character = player.Character or player.CharacterAdded:Wait()

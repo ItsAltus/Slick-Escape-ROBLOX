@@ -2,7 +2,7 @@
 	<Meta name="ExplicitAutoJoints">true</Meta>
 	<External>null</External>
 	<External>nil</External>
-	<Item class="ScreenGui" referent="RBX71353F82BC0A487F9F1CDE330AC3D527">
+	<Item class="ScreenGui" referent="RBX4D517AC6E3DC45CC8E8A7DB6D9720368">
 		<Properties>
 			<BinaryString name="AttributesSerialize"></BinaryString>
 			<bool name="AutoLocalize">true</bool>
@@ -10,7 +10,7 @@
 			<bool name="ClipToDeviceSafeArea">true</bool>
 			<bool name="DefinesCapabilities">false</bool>
 			<int name="DisplayOrder">0</int>
-			<bool name="Enabled">true</bool>
+			<bool name="Enabled">false</bool>
 			<string name="Name">MainMenu</string>
 			<bool name="ResetOnSpawn">true</bool>
 			<Ref name="RootLocalizationTable">null</Ref>
@@ -25,7 +25,7 @@
 			<BinaryString name="Tags"></BinaryString>
 			<token name="ZIndexBehavior">1</token>
 		</Properties>
-		<Item class="TextButton" referent="RBXD4823FE90B724505B23FF11FD1C42E3F">
+		<Item class="TextButton" referent="RBX8FAD9559D22C408D918C3200D28793C0">
 			<Properties>
 				<bool name="Active">true</bool>
 				<Vector2 name="AnchorPoint">
@@ -126,7 +126,7 @@
 				<int name="ZIndex">1</int>
 			</Properties>
 		</Item>
-		<Item class="TextButton" referent="RBX5C68DCB59B6E4567BC511F170B041058">
+		<Item class="TextButton" referent="RBXDC23D156384149049F575C33EBADE9BF">
 			<Properties>
 				<bool name="Active">true</bool>
 				<Vector2 name="AnchorPoint">
